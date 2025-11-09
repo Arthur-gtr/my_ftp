@@ -1,0 +1,47 @@
+#include <netdb.h> 
+#include <netinet/in.h> 
+#include <sys/socket.h> 
+#include <sys/types.h> 
+#include <unistd.h>
+#include <stdio.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <poll.h>
+
+#include "my_ftp.h"
+
+#include "init.h"
+
+
+
+/*
+Boucle Poll pour pouvoir gardé lire tout en meme temps
+*/
+
+
+int my_ftp()
+{
+    ftp_t ftp;
+
+    if (init_ftp(&ftp) == EXIT_FAILURE)
+        return EXIT_FAILURE;
+    if(run_ftp(&ftp) == EXIT_FAILURE){
+        destroy_ftp(&ftp);
+        return EXIT_FAILURE;
+    }
+    destroy_ftp(&ftp);
+    return EXIT_SUCCESS;
+}
+
+int main(int ac, char **av)
+{
+    (void)(ac);
+    (void)(av);
+    return my_ftp();
+}

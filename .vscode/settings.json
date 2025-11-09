@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "my_ftp.h": "c",
+        "stdlib.h": "c",
+        "time.h": "c",
+        "command.h": "c"
+    }
+}

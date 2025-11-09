@@ -12,13 +12,32 @@ NAME_S = server
 
 CLIENT = client.c
 
-SERV = server.c
+SERV = my_server/server.c
+
+#INIT
+SERV += my_server/init/init_ftp.c
+SERV += my_server/init/init_server.c
+SERV += my_server/init/init_polling.c
+SERV += my_server/init/init_client.c 
+
+#UTILS
+SERV += my_server/utils/reterr.c
+SERV += my_server/utils/my_str_to_word_array.c
+
+#FTP
+SERV += my_server/ftp/run_ftp.c
+
+#COMMAND
+SERV += my_server/ftp/command/command_tab.c
+
+#FREE
+SERV += my_server/free/destroy_ftp.c
 
 OB_C = $(CLIENT:.c=.o)
 
 OB_S = $(SERV:.c=.o)
 
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude -g
 
 LDFLAG = -g
 

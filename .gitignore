@@ -1,0 +1,10 @@
+
+#Executable
+
+a.out
+client
+server
+
+#File
+
+*.o
