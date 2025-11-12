@@ -26,7 +26,7 @@
     #define RUNNING 0
     #define CLOSE 1
 
-    #define TIMEOUT 5000
+    #define TIMEOUT -1
 
 
     typedef struct server_s {
@@ -36,6 +36,7 @@
     }server_t;
     
     /*CONNEXION*/
+    #define RESET_FLAG 0
     #define USER_C (1 << 0)
     #define PASSW_C (1 << 1)
     #define CONNECTED (1 << 2)
@@ -58,8 +59,8 @@
 
     typedef struct polling_s{
         size_t alloc_pollfd;
-        struct pollfd *fds;
         int nfds; 
+        struct pollfd *fds;
     }polling_t;
 
     typedef struct ftp_s {

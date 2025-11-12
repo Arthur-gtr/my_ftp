@@ -5,12 +5,7 @@
 ## .
 ##
 
-NAME_C = client
-
-NAME_S = server
-
-
-CLIENT = client.c
+NAME_S = my_ftp
 
 SERV = my_server/server.c
 
@@ -28,12 +23,12 @@ SERV += my_server/utils/my_str_to_word_array.c
 SERV += my_server/ftp/run_ftp.c
 
 #COMMAND
+SERV += my_server/ftp/command/cmd_tab.c
 SERV += my_server/ftp/command/command_tab.c
+SERV += my_server/ftp/command/USER.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c
-
-OB_C = $(CLIENT:.c=.o)
 
 OB_S = $(SERV:.c=.o)
 
@@ -41,18 +36,15 @@ CFLAGS = -Wall -Wextra -Iinclude -g
 
 LDFLAG = -g
 
-all: $(NAME_C)	$(NAME_S)
-
-$(NAME_C): $(OB_C)
-		gcc -g $(OB_C) $(CFLAGS) -o $(NAME_C)  $(LDFLAG) 
+all: $(NAME_S)
 $(NAME_S): $(OB_S)
 		gcc -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
 
 clean:
-		rm -rf $(OB_C) && rm -rf $(OB_S)
+		rm -rf $(OB_S)
 
 fclean: clean
-		rm -rf $(NAME_C) && rm -rf $(NAME_S)
+		rm -rf $(NAME_S)
 
 
 re: fclean all
