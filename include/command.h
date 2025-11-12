@@ -24,6 +24,21 @@
         int (*funct)(ftp_t *ftp, int , char *buffer);
     } command_t;
 
+    #define CDUP 0
+    #define CWD 1
+    #define DELE 2
+    #define HELP 3
+    #define LIST 4
+    #define NOOP 5
+    #define PASS 6
+    #define PASV 7
+    #define PORT 8
+    #define PWD 9
+    #define QUIT 10
+    #define RETR 11
+    #define STOR 12
+    #define USER 13
+ 
     extern const command_t command_tab[];
     extern const size_t sz_tab_cmd;
 #endif /*COMMAND_H*/

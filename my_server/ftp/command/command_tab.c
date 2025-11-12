@@ -54,13 +54,14 @@ int password(ftp_t *ftp, int index, char *command)
     return EXIT_SUCCESS;
 }
 
-int command_parsing(ftp_t *ftp, int index,char *command)
+int command_parsing(ftp_t *ftp, int index, char *command)
 {
     int status = -1;
 
     for (size_t i = 0; i != sz_tab_cmd; i++){
-        if (strncmp(command_tab[i].command_name, command, 4) == 0){
-            printf("Command detected: %s\n", command_tab[i].command_name);
+        if (strncmp(command_tab[i].command_name, command, command_tab[i].size) == 0){
+
+            printf("Command detected: %s, index %d\n", command_tab[i].command_name, i);
             status = command_tab[i].funct(ftp, index, command);
         }
         if (status != -1)

@@ -67,7 +67,6 @@ int get_data(ftp_t *ftp, int index)
     int status = 0;
 
     status = read(ftp->polling.fds[index].fd, buffer, 1024);
-    printf("status %d\n", status);
     if (status == -1)
         return EXIT_FAILURE;
     if (status == 0){
@@ -88,7 +87,6 @@ int check_event(ftp_t *ftp)
     if (ftp->polling.fds[FDS_SERVER].revents & POLLIN)
         if (add_user(ftp) == EXIT_FAILURE)
             return reterr("Malloc failed.");
-
     for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++){
         if (ftp->polling.fds[i].revents & POLLIN){
             printf("Got Pollin Flag %d\n", ftp->polling.fds[i].revents);

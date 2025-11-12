@@ -11,10 +11,29 @@
 #include <stdio.h>
 #include <unistd.h>
 
+bool char_in_str(char c, char *cmp)
+{
+    for (; *cmp != '\0' ; cmp++){
+        if (*cmp == c)
+            continue;
+        return false;
+    }
+    return true;
+}
+
+int skip_garbage(char *garbage, char *command, int init_pos)
+{
+    int skip_case = init_pos + 1;
+
+    for (; char_in_str(command[skip_case], garbage); skip_case++);
+    printf("size; %d\n", skip_case);
+    return skip_case;
+}
+
 int user(ftp_t *ftp, int index, char *command)
 {
     ftp->client[index].connection = RESET_FLAG;
-    command += strlen(command_tab[0].command_name) + 1;
+    command += skip_garbage("\t ", command, command_tab[USER].size);
     if (strlen(command) > LIMIT_NAME){
         ftp->client[index].connection = 0;
         write(ftp->polling.fds[index].fd, "501 Username too long\r\n", 23);
