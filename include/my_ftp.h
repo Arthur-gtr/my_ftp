@@ -44,13 +44,16 @@
     #define PASSW_C (1 << 1)
     #define CONNECTED (1 << 2)
 
+    #define DATA_BUFFER 2048
+    #define CMD_BUFFER 1024
+
     typedef struct ftp_command_s{
 
-        char buffer[2048];
+        char buffer[DATA_BUFFER];
         int nb_crlf;
         
         /*Temporary contain one commnande and arg*/
-        char command[1024];
+        char command[CMD_BUFFER];
         int size_cmd;
         
         /*The number of arg after the command ex[LIST, USER, ect...]*/
@@ -60,7 +63,7 @@
         int pos;
 
         /*Charter after CRTF*/
-        char garbage[2048];
+        char garbage[DATA_BUFFER];
     } ftp_command_t;
 
     typedef struct client_s{
@@ -100,7 +103,7 @@
     int run_ftp(ftp_t *ftp);
 
     /*Commands*/
-    int command_parsing(ftp_t *ftp, int index,char *command);
+    int command_parsing(ftp_t *ftp, int index);
     int password(ftp_t *ftp, int index, char *command);
     int pwd(ftp_t *ftp, int index, char *command);
 

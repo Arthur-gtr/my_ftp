@@ -65,7 +65,7 @@ int add_user(ftp_t *ftp)
     if (ftp->client[ftp->client->size - 1].wd == NULL)
         reterr("Malloc failed");
     ftp->polling.fds[ftp->client->size].fd = accept(ftp->server.server_fd, (struct sockaddr *)&ftp->client[ftp->client->size - 1].addr, &ftp->client[ftp->client->size - 1].addrlen);
-    ftp->polling.fds[ftp->client->size].events = POLLIN;
+    ftp->polling.fds[ftp->client->size].events = POLLIN | POLLOUT;
     ftp->polling.fds[ftp->client->size].revents = 0;
     if (ftp->polling.fds[ftp->client->size].fd == -1)
         return reterr("Error file descriptor");
@@ -107,13 +107,16 @@ int check_server_event(ftp_t *ftp)
 }
 
 static
-void check_force_deco(struct pollfd *poll_fd)
+int check_force_deco(struct pollfd *poll_fd)
 {
     if (poll_fd->revents & (POLLHUP | POLLERR | POLLNVAL)){
             poll_fd->fd = -1;
             poll_fd->revents = 0;
+            poll_fd->events = 0;
             printf("Deconect: force\n");
+            return EXIT_FAILURE;
         }
+    return EXIT_SUCCESS;
 }
 
 /*Return the number of patern find in a str*/
@@ -157,8 +160,11 @@ int fill_current_cmd(ftp_command_t *cmd_info)
 
     for(int i = cmd_info->pos; cmd_info->buffer[i] != '\0'; i++){
         if (strncmp(&cmd_info->buffer[i], CRLF, CRLF_SZ) == 0){
-            cmd_info->pos = i;
-            cmd_info->command[pos] = '\0';
+            cmd_info->pos = (i + CRLF_SZ);
+            cmd_info->command[i] = '\0';
+            strcat(cmd_info->command, CRLF);
+            //cmd_info->command[pos] = '\0';
+            printf("VALUE: %d\n", cmd_info->command[cmd_info->pos]);
             return EXIT_SUCCESS;
         }
         if (is_valid(cmd_info->buffer[i]) ){
@@ -185,6 +191,7 @@ bool execute(ftp_t *ftp, int client)
             /*On balance tous dans le buffer garbage qui est fais pour ça*/
             printf("Garbage\n");
         }
+        command_parsing(ftp, client);
         printf("Execution %d\n", i);
         printf("Restore Command: %s\n", ftp->client[CLIENT_IDX(client)].cmd_info.command);
     }
@@ -192,16 +199,31 @@ bool execute(ftp_t *ftp, int client)
 }
 
 static
+int reset_cmd(ftp_command_t *cmd_info)
+{
+    /*Fonction pour fill le garbage a créer pour le remplir et pour ensuite pouvoir fill le buffer*/
+    memset(cmd_info->garbage, 0, DATA_BUFFER);
+    memset(cmd_info->buffer, 0, DATA_BUFFER);
+    memset(cmd_info->command, 0, CMD_BUFFER);
+    cmd_info->nb_arg = 0;
+    cmd_info->nb_crlf = 0;
+    cmd_info->pos = 0;
+    cmd_info->size_cmd = 0;
+}
+
+static
 int check_client_event(ftp_t *ftp, int i)
 {
     if (!(ftp->polling.fds[i].revents & POLLIN))
         return EXIT_SUCCESS;
-    check_force_deco(&ftp->polling.fds[i]);
+    if (check_force_deco(&ftp->polling.fds[i]) == EXIT_FAILURE)
+        return EXIT_SUCCESS;
     if (get_data(ftp, i) == EXIT_FAILURE)
         return EXIT_SUCCESS;
     if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true){
         printf("Buffer=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
         execute(ftp, i);
+        reset_cmd(&ftp->client[CLIENT_IDX(i)].cmd_info);
         printf("Command=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.command);
     }
         //command_parsing(ftp, i);
