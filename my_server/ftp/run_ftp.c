@@ -21,9 +21,6 @@
 #include <time.h>
 
 
-/*
-Faut d' abords faire une recherche pour savoir ou il faut remplacé pour les gens qui se déconnectes
-*/
 static
 int add_user(ftp_t *ftp)
 {   
@@ -32,7 +29,7 @@ int add_user(ftp_t *ftp)
 
     ftp->client->size++;
     ftp->polling.nfds++;
-    if (ftp->polling.nfds >= (int)ftp->polling.alloc_pollfd){
+    if (ftp->polling.nfds > (int)ftp->polling.alloc_pollfd){
         ftp->polling.alloc_pollfd *= 2;
         fds = realloc(ftp->polling.fds, sizeof(struct pollfd) * ftp->polling.alloc_pollfd);
         if (fds == NULL) {
@@ -52,8 +49,12 @@ int add_user(ftp_t *ftp)
     }
     ftp->client[ftp->client->size - 1].addrlen = sizeof(ftp->client[0].addr);
     ftp->client[ftp->client->size - 1].connection = 0;
+    ftp->client[ftp->client->size - 1].wd = strdup("/");
+    if (ftp->client[ftp->client->size - 1].wd == NULL)
+        reterr("Malloc failed");
     ftp->polling.fds[ftp->client->size].fd = accept(ftp->server.server_fd, (struct sockaddr *)&ftp->client[ftp->client->size - 1].addr, &ftp->client[ftp->client->size - 1].addrlen);
     ftp->polling.fds[ftp->client->size].events = POLLIN;
+    ftp->polling.fds[ftp->client->size].revents = 0;
     if (ftp->polling.fds[ftp->client->size].fd == -1)
         return reterr("Error file descriptor");
     write(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n", 17);
@@ -76,7 +77,7 @@ int get_data(ftp_t *ftp, int index)
         return EXIT_FAILURE;
     }
     buffer[status] = '\0';
-    printf("data %s\n", buffer);
+    printf("data %s", buffer);
     command_parsing(ftp, index, buffer);
     return EXIT_SUCCESS;
 }
@@ -87,6 +88,7 @@ int check_event(ftp_t *ftp)
     if (ftp->polling.fds[FDS_SERVER].revents & POLLIN)
         if (add_user(ftp) == EXIT_FAILURE)
             return reterr("Malloc failed.");
+    printf("size alloc %ld\n", ftp->client->alloc_client);
     for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++){
         if (ftp->polling.fds[i].revents & POLLIN){
             printf("Got Pollin Flag %d\n", ftp->polling.fds[i].revents);

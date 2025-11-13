@@ -26,6 +26,7 @@ SERV += my_server/ftp/run_ftp.c
 SERV += my_server/ftp/command/cmd_tab.c
 SERV += my_server/ftp/command/command_tab.c
 SERV += my_server/ftp/command/USER.c
+SERV += my_server/ftp/command/PWD.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c

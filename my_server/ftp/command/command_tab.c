@@ -35,9 +35,9 @@ int syst(ftp_t *ftp, int index, char *command)
 
 int password(ftp_t *ftp, int index, char *command)
 {
-    printf("Password\n");
     command += 5;
-    if (!(USER_C & ftp->client[index].connection)){
+    printf("Password %s\n", command);
+    if (!(USER_C & ftp->client[CLIENT_IDX(index)].connection)){
         write(ftp->polling.fds[index].fd, "530 Username don't set...\r\n", 27);
         return EXIT_FAILURE;
     }
@@ -46,27 +46,27 @@ int password(ftp_t *ftp, int index, char *command)
         return EXIT_FAILURE;
     }*/
     if (strcmp(command, "\r\n") == 0){
-        ftp->client[index].connection |= PASSW_C;
-        ftp->client[index].connection |= CONNECTED;
+        ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
+        ftp->client[CLIENT_IDX(index)].connection |= CONNECTED;
         write(ftp->polling.fds[index].fd, "230 Password OK: Welcome aboard captain\r\n", 41);
         return EXIT_SUCCESS;
     }
+    write(ftp->polling.fds[index].fd, "332 Need account for login.\r\n", 29);
     return EXIT_SUCCESS;
 }
 
 int command_parsing(ftp_t *ftp, int index, char *command)
 {
     int status = -1;
+    /*Get first arg*/
 
     for (size_t i = 0; i != sz_tab_cmd; i++){
         if (strncmp(command_tab[i].command_name, command, command_tab[i].size) == 0){
-
-            printf("Command detected: %s, index %d\n", command_tab[i].command_name, i);
             status = command_tab[i].funct(ftp, index, command);
         }
         if (status != -1)
             return status;
     }
     write(ftp->polling.fds[index].fd, "500 Syntax error, command unrecognized.\r\n", 42);
-    return reterr("ERROR COMMAND NOT FOUND");
+    return reterr("500 Syntax error, command unrecognized.");
 }

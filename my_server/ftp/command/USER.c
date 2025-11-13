@@ -32,15 +32,16 @@ int skip_garbage(char *garbage, char *command, int init_pos)
 
 int user(ftp_t *ftp, int index, char *command)
 {
-    ftp->client[index].connection = RESET_FLAG;
+    ftp->client[CLIENT_IDX(index)].connection = RESET_FLAG;
     command += skip_garbage("\t ", command, command_tab[USER].size);
+    printf("Index %d, max %lu\n", index, ftp->client->alloc_client);
     if (strlen(command) > LIMIT_NAME){
-        ftp->client[index].connection = 0;
+        ftp->client[CLIENT_IDX(index)].connection = 0;
         write(ftp->polling.fds[index].fd, "501 Username too long\r\n", 23);
         return EXIT_FAILURE;
     }
-    if (strcmp(command, "anonymous\r\n") == 0){
-        ftp->client[index].connection |= USER_C;
+    if (strcmp(command, "Anonymous\r\n") == 0){
+        ftp->client[CLIENT_IDX(index)].connection |= USER_C;
         write(ftp->polling.fds[index].fd, "331 Username Accepted\r\n", 23);
         return EXIT_SUCCESS;
     }
