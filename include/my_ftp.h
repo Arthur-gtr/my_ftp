@@ -16,6 +16,8 @@
 
     #include "utils.h"
 
+    #define CRLF "\r\n"
+
     #define LIMIT_NAME 256
     #define MAX_SIMULTANEOUS_CONNEXION 5
     #define FDS_SERVER 0
@@ -41,15 +43,24 @@
     #define PASSW_C (1 << 1)
     #define CONNECTED (1 << 2)
 
-    typedef struct command_s{
-        char *command;
+    typedef struct ftp_command_s{
 
+        char buffer[2048];
+        int nb_crlf;
+        
+        /*Temporary contain one commnande and arg*/
+        char command[1024];
+        int size_cmd;
+        
         /*The number of arg after the command ex[LIST, USER, ect...]*/
         int nb_arg;
-
+        
         /*Start*/
-        int start;
-    } command_t;
+        int pos;
+
+        /*Charter after CRTF*/
+        char garbage[2048];
+    } ftp_command_t;
 
     typedef struct client_s{
         size_t alloc_client;
@@ -69,7 +80,7 @@
         char *wd;
 
         /*command_buffer*/
-
+        ftp_command_t cmd_info;
     }client_t;
 
     typedef struct polling_s{

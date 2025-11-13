@@ -8,6 +8,7 @@
 #include <poll.h>
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -20,6 +21,15 @@
 
 #include <time.h>
 
+static
+void init_ftp_command(ftp_command_t *cmd_info)
+{
+    cmd_info->nb_arg = 0;
+    cmd_info->nb_crlf = 0;
+    cmd_info->size_cmd = 0;
+    cmd_info->pos = 0;
+    memset(cmd_info->buffer, 0, 2048);
+}
 
 static
 int add_user(ftp_t *ftp)
@@ -59,15 +69,17 @@ int add_user(ftp_t *ftp)
         return reterr("Error file descriptor");
     write(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n", 17);
     printf("User add to the queu, IP: %s\n", inet_ntoa(ftp->client[ftp->client->size - 1].addr.sin_addr));
+    init_ftp_command(&ftp->client[CLIENT_IDX(ftp->client->size)].cmd_info);
     return EXIT_SUCCESS;
 }
 
 int get_data(ftp_t *ftp, int index)
 {
-    char buffer[1024];
     int status = 0;
+    char buffer[2048];
+    /*ftp->client[CLIENT_IDX(index)].cmd_info.buffer*/
 
-    status = read(ftp->polling.fds[index].fd, buffer, 1024);
+    status = read(ftp->polling.fds[index].fd, buffer, 2048);
     if (status == -1)
         return EXIT_FAILURE;
     if (status == 0){
@@ -77,31 +89,79 @@ int get_data(ftp_t *ftp, int index)
         return EXIT_FAILURE;
     }
     buffer[status] = '\0';
-    printf("data %s", buffer);
-    command_parsing(ftp, index, buffer);
+    strcat(ftp->client[CLIENT_IDX(index)].cmd_info.buffer, buffer);
+    return EXIT_SUCCESS;
+}
+
+static
+int check_server_event(ftp_t *ftp)
+{
+    if (ftp->polling.fds[FDS_SERVER].revents & POLLIN)
+        if (add_user(ftp) == EXIT_FAILURE)
+            return reterr("Malloc failed.");
+    return EXIT_SUCCESS;
+}
+
+static
+void check_force_deco(struct pollfd *poll_fd)
+{
+    if (poll_fd->revents & (POLLHUP | POLLERR | POLLNVAL)){
+            poll_fd->fd = -1;
+            poll_fd->revents = 0;
+            printf("Deconect: force\n");
+        }
+}
+
+/*Return the number of patern find in a str*/
+static
+int find_patern_in_str(char *str, char *patern)
+{
+    int count = 0;
+
+    for (int i = 0; str[i] != '\0'; i++){
+        if (strncmp(str, patern, i) == 0)
+            count++;
+    }
+    return count;
+}
+
+static
+bool command_detected(ftp_command_t *cmd_info)
+{
+    cmd_info->nb_crlf = find_patern_in_str(cmd_info->buffer, "\r\n");
+
+    if (cmd_info->nb_crlf > 0){
+        return true;
+    }
+    return false;
+}
+
+static
+bool execute(ftp_command_t *cmd_info)
+{
+}
+
+static
+int check_client_event(ftp_t *ftp, int i)
+{
+    if (!(ftp->polling.fds[i].revents & POLLIN))
+        return EXIT_SUCCESS;
+    check_force_deco(&ftp->polling.fds[i]);
+    if (get_data(ftp, i) == EXIT_FAILURE)
+        return EXIT_SUCCESS;
+    if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true)
+        printf("Command=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
+        //command_parsing(ftp, i);
     return EXIT_SUCCESS;
 }
 
 static
 int check_event(ftp_t *ftp)
 {
-    if (ftp->polling.fds[FDS_SERVER].revents & POLLIN)
-        if (add_user(ftp) == EXIT_FAILURE)
-            return reterr("Malloc failed.");
-    printf("size alloc %ld\n", ftp->client->alloc_client);
-    for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++){
-        if (ftp->polling.fds[i].revents & POLLIN){
-            printf("Got Pollin Flag %d\n", ftp->polling.fds[i].revents);
-            get_data(ftp, i);
-        }
-        /*Recevoir des données et déterminer si je dois faires des choses ?*/
-        if (ftp->polling.fds[i].revents & (POLLHUP | POLLERR | POLLNVAL)){
-            ftp->polling.fds[i].fd = -1;
-            ftp->polling.fds[i].revents = 0;
-            printf("Deconect\n");
-        }
-        /*MEttre le fd du fds a -1 pour le supprimé du tableau.*/
-    }
+    if (check_server_event(ftp) == EXIT_FAILURE)
+        return EXIT_FAILURE;   
+    for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++)
+        check_client_event(ftp, i);
     return EXIT_SUCCESS;
 }
 
