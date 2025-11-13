@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <ctype.h>
+
 #include "my_ftp.h"
 
 #include <sys/socket.h>
@@ -89,6 +91,8 @@ int get_data(ftp_t *ftp, int index)
         return EXIT_FAILURE;
     }
     buffer[status] = '\0';
+    if (status + strlen(ftp->client[CLIENT_IDX(index)].cmd_info.buffer) > 2048)
+        dprintf(2, "Warning too much charcter stor in the command buffer\n");
     strcat(ftp->client[CLIENT_IDX(index)].cmd_info.buffer, buffer);
     return EXIT_SUCCESS;
 }
@@ -114,12 +118,13 @@ void check_force_deco(struct pollfd *poll_fd)
 
 /*Return the number of patern find in a str*/
 static
-int find_patern_in_str(char *str, char *patern)
+int find_pattern_in_str(char *str, char *pattern)
 {
     int count = 0;
+    int pattern_sz = strlen(pattern);
 
-    for (int i = 0; str[i] != '\0'; i++){
-        if (strncmp(str, patern, i) == 0)
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (strncmp(&str[i], pattern, pattern_sz) == 0)
             count++;
     }
     return count;
@@ -128,17 +133,62 @@ int find_patern_in_str(char *str, char *patern)
 static
 bool command_detected(ftp_command_t *cmd_info)
 {
-    cmd_info->nb_crlf = find_patern_in_str(cmd_info->buffer, "\r\n");
+    cmd_info->nb_crlf = find_pattern_in_str(cmd_info->buffer, "\r\n");
 
     if (cmd_info->nb_crlf > 0){
+        printf("CRLF: %d\n", cmd_info->nb_crlf);
         return true;
     }
     return false;
 }
 
-static
-bool execute(ftp_command_t *cmd_info)
+int is_valid(char c)
 {
+    return isalpha(c)
+        || isdigit(c)
+        || ispunct(c);
+}
+
+static
+int fill_current_cmd(ftp_command_t *cmd_info)
+{
+    int pos = 0;
+    bool need_space = (is_valid(cmd_info->buffer[0])) ? true : false;
+
+    for(int i = cmd_info->pos; cmd_info->buffer[i] != '\0'; i++){
+        if (strncmp(&cmd_info->buffer[i], CRLF, CRLF_SZ) == 0){
+            cmd_info->pos = i;
+            cmd_info->command[pos] = '\0';
+            return EXIT_SUCCESS;
+        }
+        if (is_valid(cmd_info->buffer[i]) ){
+            cmd_info->command[pos] = cmd_info->buffer[i];
+            pos++;
+            need_space = true;
+            continue;
+        }
+        if ((cmd_info->buffer[i] == ' ' || cmd_info->buffer[i] == '\t') && need_space == true){
+            cmd_info->command[pos] = ' ';
+            pos++;
+            need_space = false;
+            continue;
+        }
+    }
+    return EXIT_FAILURE;
+}
+
+static
+bool execute(ftp_t *ftp, int client)
+{
+    for (int i = 0; ftp->client[CLIENT_IDX(client)].cmd_info.nb_crlf != i; i++){
+        if (fill_current_cmd(&ftp->client[CLIENT_IDX(client)].cmd_info) == EXIT_FAILURE){
+            /*On balance tous dans le buffer garbage qui est fais pour ça*/
+            printf("Garbage\n");
+        }
+        printf("Execution %d\n", i);
+        printf("Restore Command: %s\n", ftp->client[CLIENT_IDX(client)].cmd_info.command);
+    }
+    return true;
 }
 
 static
@@ -149,8 +199,11 @@ int check_client_event(ftp_t *ftp, int i)
     check_force_deco(&ftp->polling.fds[i]);
     if (get_data(ftp, i) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true)
-        printf("Command=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
+    if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true){
+        printf("Buffer=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
+        execute(ftp, i);
+        printf("Command=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.command);
+    }
         //command_parsing(ftp, i);
     return EXIT_SUCCESS;
 }

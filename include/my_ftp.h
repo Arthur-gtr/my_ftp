@@ -17,6 +17,7 @@
     #include "utils.h"
 
     #define CRLF "\r\n"
+    #define CRLF_SZ 2
 
     #define LIMIT_NAME 256
     #define MAX_SIMULTANEOUS_CONNEXION 5
