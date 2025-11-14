@@ -96,8 +96,9 @@ int get_data(ftp_t *ftp, int index)
     buffer[status] = '\0';
     if (status + strlen(ftp->client[CLIENT_IDX(index)].cmd_info.buffer) > 2048){
         memset(ftp->client[CLIENT_IDX(index)].cmd_info.buffer, 0, DATA_BUFFER);
-        strcpy(buffer, ftp->client[CLIENT_IDX(index)].cmd_info.buffer);
+        strncpy(buffer, ftp->client[CLIENT_IDX(index)].cmd_info.buffer, DATA_BUFFER);
         dprintf(2, "Warning too much charcter stor in the command buffer\n");
+        dprintf(ftp->polling.fds[index].fd, "500 Warning too much charcter stor in the command buffer next time you will be kick\r\n");
         return EXIT_FAILURE;
     }
     strcat(ftp->client[CLIENT_IDX(index)].cmd_info.buffer, buffer);
@@ -168,7 +169,7 @@ int fill_current_cmd(ftp_command_t *cmd_info)
             cmd_info->pos = (i + CRLF_SZ);
             cmd_info->command[i] = '\0';
             cmd_info->garbage_status = (cmd_info->buffer[cmd_info->pos + 1] == '\0') ? false : true;
-            strcat(cmd_info->command, CRLF);
+            strncat(cmd_info->command, CRLF, CMD_BUFFER - 1);
             return EXIT_SUCCESS;
         }
         if (is_valid(cmd_info->buffer[i]) ){
@@ -266,7 +267,7 @@ static
 void reset_cmd(ftp_command_t *cmd_info)
 {
     memset(cmd_info->buffer, 0, DATA_BUFFER);
-    strcpy(cmd_info->buffer, cmd_info->garbage);
+    strncpy(cmd_info->buffer, cmd_info->garbage, CMD_BUFFER);
     memset(cmd_info->garbage, 0, DATA_BUFFER);
     printf("Garbage 2 : %s\n", cmd_info->garbage);
     /*Fonction que je dois créer pour fill le garbage et pour ensuite pouvoir fill le buffer*/
