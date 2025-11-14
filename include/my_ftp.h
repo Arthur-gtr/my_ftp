@@ -13,6 +13,7 @@
     #include <netinet/in.h> 
     #include <sys/socket.h>
     #include <poll.h> 
+    #include <stdbool.h>
 
     #include "utils.h"
 
@@ -47,6 +48,8 @@
     #define DATA_BUFFER 2048
     #define CMD_BUFFER 1024
 
+    #define EXIT_GARBAGE -1
+
     typedef struct ftp_command_s{
 
         char buffer[DATA_BUFFER];
@@ -58,7 +61,8 @@
         
         /*The number of arg after the command ex[LIST, USER, ect...]*/
         int nb_arg;
-        
+        bool garbage_status;
+
         /*Start*/
         int pos;
 

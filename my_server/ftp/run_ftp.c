@@ -30,7 +30,10 @@ void init_ftp_command(ftp_command_t *cmd_info)
     cmd_info->nb_crlf = 0;
     cmd_info->size_cmd = 0;
     cmd_info->pos = 0;
+    cmd_info->garbage_status = false;
     memset(cmd_info->buffer, 0, 2048);
+    memset(cmd_info->command, 0, 2048);
+    memset(cmd_info->garbage, 0, 2048);
 }
 
 static
@@ -151,21 +154,20 @@ bool command_detected(ftp_command_t *cmd_info)
 
 int is_valid(char c)
 {
-    return isalpha(c)
-        || isdigit(c)
-        || ispunct(c);
+    return isalpha(c) || isdigit(c) || ispunct(c);
 }
 
 static
 int fill_current_cmd(ftp_command_t *cmd_info)
 {
     int pos = 0;
-    bool need_space = (is_valid(cmd_info->buffer[0])) ? true : false;
+    bool need_space = false;
 
     for(int i = cmd_info->pos; cmd_info->buffer[i] != '\0'; i++){
         if (strncmp(&cmd_info->buffer[i], CRLF, CRLF_SZ) == 0){
             cmd_info->pos = (i + CRLF_SZ);
             cmd_info->command[i] = '\0';
+            cmd_info->garbage_status = (cmd_info->buffer[cmd_info->pos + 1] == '\0') ? false : true;
             strcat(cmd_info->command, CRLF);
             return EXIT_SUCCESS;
         }
@@ -186,33 +188,96 @@ int fill_current_cmd(ftp_command_t *cmd_info)
 }
 
 static
+void print_visible(const char *s)
+{
+    for (int i = 0; s[i]; i++) {
+        unsigned char c = s[i];
+
+        switch (c) {
+            case '\n': printf("\\n"); break;
+            case '\r': printf("\\r"); break;
+            case '\t': printf("\\t"); break;
+            case '\v': printf("\\v"); break;
+            case '\f': printf("\\f"); break;
+            case '\a': printf("\\a"); break;
+            case '\\': printf("\\\\"); break;
+            default:
+                if (c < 32 || c > 126) {
+                    printf("\\x%02X", c);
+                } else {
+                    putchar(c);
+                }
+                break;
+        }
+    }
+    printf("\n");
+}
+
+void strnlastcat(char *dest, const char *src, size_t n)
+{ 
+    size_t len = strlen(src);
+    int pos = 0;
+
+    if (len < n) 
+        n = len;
+    for (size_t i = n; src[i] != '\0'; i++) {
+        dest[pos] = src[i];
+        pos++;
+    }
+}
+
+static
+void fill_garbage(ftp_command_t *cmd_info)
+{
+    printf("Position String: %d : %c\n",cmd_info->pos,  cmd_info->buffer[cmd_info->pos]);
+    int garbage_size = (strlen(cmd_info->buffer) - cmd_info->pos);
+
+    if (garbage_size + strlen(cmd_info->garbage) > DATA_BUFFER){
+        memset(cmd_info->garbage, 0, DATA_BUFFER);
+        strnlastcat(cmd_info->garbage, cmd_info->buffer, cmd_info->pos);
+        dprintf(2, "Warning too much charcter stor in the command buffer\n");
+    }
+    strnlastcat(cmd_info->garbage, cmd_info->buffer, cmd_info->pos);
+}
+
+static
 bool execute(ftp_t *ftp, int client)
 {
     for (int i = 0; ftp->client[CLIENT_IDX(client)].cmd_info.nb_crlf != i; i++){
         if (fill_current_cmd(&ftp->client[CLIENT_IDX(client)].cmd_info) == EXIT_FAILURE){
-            /*On balance tous dans le buffer garbage qui est fais pour ça*/
-            printf("Garbage\n");
+            break;
         }
+        printf("ID: %d, Command: %s\n", i, ftp->client[CLIENT_IDX(client)].cmd_info.command);
+        write(1, "I am the dark: ", 15);
+        print_visible(ftp->client[CLIENT_IDX(client)].cmd_info.command);
         command_parsing(ftp, client);
-        printf("Execution %d\n", i);
-        printf("Restore Command: %s\n", ftp->client[CLIENT_IDX(client)].cmd_info.command);
+        memset(ftp->client[CLIENT_IDX(client)].cmd_info.command, 0, CMD_BUFFER);
+    }
+    if (ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status == true){
+        printf("Fill garbage\n");
+        fill_garbage(&ftp->client[CLIENT_IDX(client)].cmd_info);/*On balance tous dans le buffer garbage qui est fais pour ça*/
+        printf("Garbage: %s\n", ftp->client[CLIENT_IDX(client)].cmd_info.garbage);
+        ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status = false;
     }
     return true;
 }
 
 static
-int reset_cmd(ftp_command_t *cmd_info)
+void reset_cmd(ftp_command_t *cmd_info)
 {
-    memset(cmd_info->garbage, 0, DATA_BUFFER);
-    /*Fonction que je dois créer pour fill le garbage et pour ensuite pouvoir fill le buffer*/
     memset(cmd_info->buffer, 0, DATA_BUFFER);
-    strcpy(cmd_info->garbage, cmd_info->buffer);
+    strcpy(cmd_info->buffer, cmd_info->garbage);
+    memset(cmd_info->garbage, 0, DATA_BUFFER);
+    printf("Garbage 2 : %s\n", cmd_info->garbage);
+    /*Fonction que je dois créer pour fill le garbage et pour ensuite pouvoir fill le buffer*/
     memset(cmd_info->command, 0, CMD_BUFFER);
     cmd_info->nb_arg = 0;
     cmd_info->nb_crlf = 0;
     cmd_info->pos = 0;
     cmd_info->size_cmd = 0;
 }
+
+
 
 static
 int check_client_event(ftp_t *ftp, int i)
@@ -227,7 +292,6 @@ int check_client_event(ftp_t *ftp, int i)
         printf("Buffer=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
         execute(ftp, i);
         reset_cmd(&ftp->client[CLIENT_IDX(i)].cmd_info);
-        printf("Command=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.command);
     }
         //command_parsing(ftp, i);
     return EXIT_SUCCESS;

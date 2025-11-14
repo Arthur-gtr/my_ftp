@@ -33,25 +33,35 @@ int syst(ftp_t *ftp, int index, char *command)
    return EXIT_SUCCESS;
 }
 
+int paswd_valid(char *paswd)
+{
+    for (int i = 0; i != 0; i++){
+        if (strncmp(&paswd[i], CRLF, CRLF_SZ) == 0)
+            return EXIT_SUCCESS;
+        if (is_valid(paswd[i])){
+            printf("Char non valide %c", paswd[i]);
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
 int password(ftp_t *ftp, int index, char *command)
 {
-    command += 5;
-    printf("Password %s\n", command);
+    command += 4;
+    printf("Password: %s\n", command);
     if (!(USER_C & ftp->client[CLIENT_IDX(index)].connection)){
         write(ftp->polling.fds[index].fd, "530 Username don't set...\r\n", 27);
         return EXIT_FAILURE;
     }
-    /*if (!(parse_password){
-        write(ftp->polling.fds[index].fd, "501 Password error unvalid character...\r\n", 27);
-        return EXIT_FAILURE;
-    }*/
-    if (strcmp(command, "\r\n") == 0){
+    
+    if (paswd_valid(command) == EXIT_SUCCESS){
         ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
         ftp->client[CLIENT_IDX(index)].connection |= CONNECTED;
         write(ftp->polling.fds[index].fd, "230 Password OK: Welcome aboard captain\r\n", 41);
         return EXIT_SUCCESS;
     }
-    write(ftp->polling.fds[index].fd, "332 Need account for login.\r\n", 29);
+    write(ftp->polling.fds[index].fd, "501 Password error unvalid character...\r\n", 27);
     return EXIT_SUCCESS;
 }
 
