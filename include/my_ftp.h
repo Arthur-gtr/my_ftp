@@ -71,6 +71,7 @@
     } ftp_command_t;
 
     typedef struct client_s{
+        /*Tab struct*/
         size_t alloc_client;
         size_t size;
 
@@ -89,6 +90,15 @@
 
         /*command_buffer*/
         ftp_command_t cmd_info;
+
+        /*PASV mode PORT mode or nothing*/
+        uint8_t mode;
+
+        /*Passive mode*/
+        struct sockaddr_in addr_pasv;
+        socklen_t addrlen_pasv;
+
+        int pasv_fd;
     }client_t;
 
     typedef struct polling_s{
@@ -106,10 +116,16 @@
 
     int run_ftp(ftp_t *ftp);
 
-    /*Commands*/
+    /*Connection*/
+    int add_user(ftp_t *ftp);
+
+    /*Command utils*/
     int command_parsing(ftp_t *ftp, int index);
+    bool is_connected(client_t *client, int fd);
+    /*Commands*/
     int password(ftp_t *ftp, int index, char *command);
     int pwd(ftp_t *ftp, int index, char *command);
+    int pasv(ftp_t *ftp, int index, char *command);
 
     /*FREE*/
     void destroy_ftp(ftp_t *ftp);

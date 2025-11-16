@@ -22,7 +22,7 @@
         /*Pour savoir si il faut fork*/
         bool data_transfer;
         int nb_argument;
-        int (*funct)(ftp_t *ftp, int , char *buffer);
+        int (*funct)(ftp_t *ftp, int index, char *buffer);
     } command_t;
 
     #define CDUP 0

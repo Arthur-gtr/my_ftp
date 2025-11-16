@@ -21,7 +21,7 @@ const command_t command_tab[] = {
     {.command_name = "LIST", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = CACA},
     {.command_name = "NOOP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = CACA},
     {.command_name = "PASS", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = &password},
-    {.command_name = "PASV", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = CACA},
+    {.command_name = "PASV", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &pasv},
     {.command_name = "PORT", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = CACA},
     {.command_name = "PWD",  .size = 3, .data_transfer =  false, .nb_argument = 0, .funct = &pwd},
     {.command_name = "QUIT", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = CACA/*&quit*/},

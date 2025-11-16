@@ -35,9 +35,11 @@ int syst(ftp_t *ftp, int index, char *command)
 
 int paswd_valid(char *paswd)
 {
-    for (int i = 0; i != 0; i++){
-        if (strncmp(&paswd[i], CRLF, CRLF_SZ) == 0)
+    for (int i = 0; paswd[i] != 0; i++){
+        if (strncmp(&paswd[i], CRLF, CRLF_SZ) == 0){
+            printf("PASS quit on index %d\n", i);
             return EXIT_SUCCESS;
+        }
         if (is_valid(paswd[i])){
             printf("Char non valide %c", paswd[i]);
             return EXIT_FAILURE;
@@ -54,7 +56,6 @@ int password(ftp_t *ftp, int index, char *command)
         write(ftp->polling.fds[index].fd, "530 Username don't set...\r\n", 27);
         return EXIT_FAILURE;
     }
-    
     if (paswd_valid(command) == EXIT_SUCCESS){
         ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
         ftp->client[CLIENT_IDX(index)].connection |= CONNECTED;

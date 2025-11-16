@@ -5,7 +5,7 @@
 
 bool is_connected(client_t *client, int fd)
 {
-     if (client->connection & CONNECTED){
+     if (!(client->connection & CONNECTED)){
         dprintf(fd, "530 Please login with USER and PASS.\r\n");
         return false;
     }

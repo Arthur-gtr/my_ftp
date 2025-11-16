@@ -21,12 +21,16 @@ SERV += my_server/utils/my_str_to_word_array.c
 
 #FTP
 SERV += my_server/ftp/run_ftp.c
+SERV += my_server/ftp/add_user.c
 
-#COMMAND
+#COMMAND UTILS
 SERV += my_server/ftp/command/cmd_tab.c
 SERV += my_server/ftp/command/command_tab.c
+
+#COMMAND
 SERV += my_server/ftp/command/USER.c
 SERV += my_server/ftp/command/PWD.c
+SERV += my_server/ftp/command/PASV.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c
