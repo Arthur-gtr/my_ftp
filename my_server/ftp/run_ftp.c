@@ -23,60 +23,6 @@
 
 #include <time.h>
 
-static
-void init_ftp_command(ftp_command_t *cmd_info)
-{
-    cmd_info->nb_arg = 0;
-    cmd_info->nb_crlf = 0;
-    cmd_info->size_cmd = 0;
-    cmd_info->pos = 0;
-    cmd_info->garbage_status = false;
-    memset(cmd_info->buffer, 0, DATA_BUFFER);
-    memset(cmd_info->command, 0, CMD_BUFFER);
-    memset(cmd_info->garbage, 0, DATA_BUFFER);
-}
-
-static
-int add_user(ftp_t *ftp)
-{   
-    client_t *client = NULL;
-    struct pollfd *fds = NULL;
-
-    ftp->client->size++;
-    ftp->polling.nfds++;
-    if (ftp->polling.nfds > (int)ftp->polling.alloc_pollfd){
-        ftp->polling.alloc_pollfd *= 2;
-        fds = realloc(ftp->polling.fds, sizeof(struct pollfd) * ftp->polling.alloc_pollfd);
-        if (fds == NULL) {
-            free(ftp->polling.fds);
-            return EXIT_FAILURE;
-        }
-        ftp->polling.fds = fds;
-    }
-    if (ftp->client->size >= ftp->client->alloc_client){
-        ftp->client->alloc_client *= 2;
-        client = realloc(ftp->client, sizeof(client_t) * ftp->client->alloc_client);
-        if (client == NULL) {
-            free(ftp->client);
-            return EXIT_FAILURE;
-        }
-        ftp->client = client;
-    }
-    ftp->client[ftp->client->size - 1].addrlen = sizeof(ftp->client[0].addr);
-    ftp->client[ftp->client->size - 1].connection = 0;
-    ftp->client[ftp->client->size - 1].wd = strdup("/");
-    if (ftp->client[ftp->client->size - 1].wd == NULL)
-        reterr("Malloc failed");
-    ftp->polling.fds[ftp->client->size].fd = accept(ftp->server.server_fd, (struct sockaddr *)&ftp->client[ftp->client->size - 1].addr, &ftp->client[ftp->client->size - 1].addrlen);
-    ftp->polling.fds[ftp->client->size].events = POLLIN | POLLOUT;
-    ftp->polling.fds[ftp->client->size].revents = 0;
-    if (ftp->polling.fds[ftp->client->size].fd == -1)
-        return reterr("Error file descriptor");
-    write(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n", 17);
-    printf("User add to the queu, IP: %s\n", inet_ntoa(ftp->client[ftp->client->size - 1].addr.sin_addr));
-    init_ftp_command(&ftp->client[CLIENT_IDX(ftp->client->size)].cmd_info);
-    return EXIT_SUCCESS;
-}
 
 int get_data(ftp_t *ftp, int index)
 {
@@ -267,9 +213,15 @@ static
 void reset_cmd(ftp_command_t *cmd_info)
 {
     memset(cmd_info->buffer, 0, DATA_BUFFER);
+    printf("Put in buffer:\n");
+    print_visible(cmd_info->buffer);
+    print_visible(cmd_info->garbage);
     strncpy(cmd_info->buffer, cmd_info->garbage, CMD_BUFFER);
     memset(cmd_info->garbage, 0, DATA_BUFFER);
     memset(cmd_info->command, 0, CMD_BUFFER);
+    printf("Reset garbage and command:\n");
+    print_visible(cmd_info->buffer);
+    print_visible(cmd_info->garbage);
     cmd_info->nb_arg = 0;
     cmd_info->nb_crlf = 0;
     cmd_info->pos = 0;
@@ -292,7 +244,7 @@ int check_client_event(ftp_t *ftp, int i)
         execute(ftp, i);
         reset_cmd(&ftp->client[CLIENT_IDX(i)].cmd_info);
     }
-        //command_parsing(ftp, i);
+    //command_parsing(ftp, i);
     return EXIT_SUCCESS;
 }
 
