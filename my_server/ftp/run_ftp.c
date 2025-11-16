@@ -31,9 +31,9 @@ void init_ftp_command(ftp_command_t *cmd_info)
     cmd_info->size_cmd = 0;
     cmd_info->pos = 0;
     cmd_info->garbage_status = false;
-    memset(cmd_info->buffer, 0, 2048);
-    memset(cmd_info->command, 0, 2048);
-    memset(cmd_info->garbage, 0, 2048);
+    memset(cmd_info->buffer, 0, DATA_BUFFER);
+    memset(cmd_info->command, 0, CMD_BUFFER);
+    memset(cmd_info->garbage, 0, DATA_BUFFER);
 }
 
 static
@@ -144,10 +144,10 @@ int find_pattern_in_str(char *str, char *pattern)
 static
 bool command_detected(ftp_command_t *cmd_info)
 {
-    cmd_info->nb_crlf = find_pattern_in_str(cmd_info->buffer, "\r\n");
+    cmd_info->nb_crlf = find_pattern_in_str(cmd_info->buffer, CRLF);
 
     if (cmd_info->nb_crlf > 0){
-        printf("CRLF: %d\n", cmd_info->nb_crlf);
+        printf("Number of CRLF in the command: %d\n", cmd_info->nb_crlf);
         return true;
     }
     return false;
@@ -269,8 +269,6 @@ void reset_cmd(ftp_command_t *cmd_info)
     memset(cmd_info->buffer, 0, DATA_BUFFER);
     strncpy(cmd_info->buffer, cmd_info->garbage, CMD_BUFFER);
     memset(cmd_info->garbage, 0, DATA_BUFFER);
-    printf("Garbage 2 : %s\n", cmd_info->garbage);
-    /*Fonction que je dois créer pour fill le garbage et pour ensuite pouvoir fill le buffer*/
     memset(cmd_info->command, 0, CMD_BUFFER);
     cmd_info->nb_arg = 0;
     cmd_info->nb_crlf = 0;
