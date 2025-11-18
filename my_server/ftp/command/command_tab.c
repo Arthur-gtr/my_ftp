@@ -56,8 +56,9 @@ int password(ftp_t *ftp, int index, char *command)
         return EXIT_SUCCESS;
     }
     if (!(USER_C & ftp->client[CLIENT_IDX(index)].connection)){
+        printf("Username don't set: %d\n", ftp->client[CLIENT_IDX(index)].connection);
         write(ftp->polling.fds[index].fd, "530 Username don't set...\r\n", 27);
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
     if (paswd_valid(command) == EXIT_SUCCESS){
         ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
@@ -82,5 +83,6 @@ int command_parsing(ftp_t *ftp, int index)
         }
     }
     write(ftp->polling.fds[index].fd, "500 Syntax error, command unrecognized.\r\n", 41);
+    printf("ftp::command: %s :", ftp->client[CLIENT_IDX(index)].cmd_info.command);
     return reterr("500 Syntax error, command unrecognized.");
 }

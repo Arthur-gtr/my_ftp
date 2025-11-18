@@ -19,6 +19,7 @@ SERV += my_server/init/init_client.c
 #UTILS
 SERV += my_server/utils/reterr.c
 SERV += my_server/utils/my_str_to_word_array.c
+SERV += my_server/utils/is_file.c
 
 #FTP
 SERV += my_server/ftp/run_ftp.c
@@ -28,6 +29,7 @@ SERV += my_server/ftp/add_user.c
 SERV += my_server/ftp/command/cmd_tab.c
 SERV += my_server/ftp/command/command_tab.c
 SERV += my_server/ftp/command/parsing_command.c
+SERV += my_server/ftp/command/handle_co.c
 
 #COMMAND
 SERV += my_server/ftp/command/NOOP.c
@@ -37,6 +39,7 @@ SERV += my_server/ftp/command/PASV.c
 SERV += my_server/ftp/command/LIST.c
 SERV += my_server/ftp/command/CWD.c
 SERV += my_server/ftp/command/CDUP.c
+SERV += my_server/ftp/command/RETR.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c

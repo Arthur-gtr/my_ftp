@@ -29,7 +29,7 @@ const command_t command_tab[] = {
     {.command_name = "PORT", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
     {.command_name = "PWD",  .size = 3, .data_transfer =  false, .nb_argument = 0, .funct = &pwd},
     {.command_name = "QUIT", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = TEST/*&quit*/},
-    {.command_name = "RETR", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
+    {.command_name = "RETR", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = &retr},
     {.command_name = "STOR", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
     {.command_name = "USER", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = &user},
     {.command_name = "TYPE", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = &type}

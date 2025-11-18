@@ -41,7 +41,7 @@ int user(ftp_t *ftp, int index, char *command)
     if (strlen(command) > LIMIT_NAME){
         ftp->client[CLIENT_IDX(index)].connection = 0;
         write(ftp->polling.fds[index].fd, "501 Username too long\r\n", 23);
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
     if (strncmp(command, "Anonymous", 9) == 0){
         ftp->client[CLIENT_IDX(index)].connection |= USER_C;
@@ -50,5 +50,5 @@ int user(ftp_t *ftp, int index, char *command)
     }
     printf("Failed USER\n");
     write(ftp->polling.fds[index].fd, "530 Uknowing name...\r\n", 23);
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }

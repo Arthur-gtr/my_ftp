@@ -48,6 +48,8 @@
     #define PATH_MAX 4096
     #endif 
 
+    #define DATA_NOT_READY -1
+
     #define CDUP_ARG "cwd .."
 
      typedef struct server_s {
@@ -138,6 +140,7 @@
     int get_pos_arg(const char *buffer, int n);
     int command_parsing(ftp_t *ftp, int index);
     bool is_connected(client_t *client, int fd);
+    int accept_co(client_t *client, int fd);
     /*Commands*/
     int password(ftp_t *ftp, int index, char *command);
     int pwd(ftp_t *ftp, int index, char *command);
@@ -150,6 +153,7 @@
     int cwd(ftp_t *ftp, int index, char *command);
     int cdup(ftp_t *ftp, int index, char *command);
     int noop(ftp_t *ftp, int index, char *command);
+    int retr(ftp_t *ftp, int index, char *command);
 
     /*FREE*/
     void destroy_ftp(ftp_t *ftp);

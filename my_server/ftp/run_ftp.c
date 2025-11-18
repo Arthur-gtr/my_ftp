@@ -175,7 +175,6 @@ void strnlastcat(char *dest, const char *src, size_t n)
 static
 void fill_garbage(ftp_command_t *cmd_info)
 {
-    printf("Position String: %d : %c\n",cmd_info->pos,  cmd_info->buffer[cmd_info->pos]);
     int garbage_size = (strlen(cmd_info->buffer) - cmd_info->pos);
 
     if (garbage_size + strlen(cmd_info->garbage) > DATA_BUFFER){
@@ -192,7 +191,7 @@ int execute(ftp_t *ftp, int client)
     for (int i = 0; ftp->client[CLIENT_IDX(client)].cmd_info.nb_crlf != i; i++){
         if (fill_current_cmd(&ftp->client[CLIENT_IDX(client)].cmd_info) == EXIT_FAILURE)
             break;
-        printf("ID: %d, Command: %s\n", i, ftp->client[CLIENT_IDX(client)].cmd_info.command);
+        printf("INDEX %d:  ID: %d, Command: %s\n",client, i, ftp->client[CLIENT_IDX(client)].cmd_info.command);
         write(1, "Show CRLF:", 10);
         print_visible(ftp->client[CLIENT_IDX(client)].cmd_info.command);
         if (command_parsing(ftp, client) == MALLOC_FAILED){
@@ -202,9 +201,7 @@ int execute(ftp_t *ftp, int client)
         memset(ftp->client[CLIENT_IDX(client)].cmd_info.command, 0, CMD_BUFFER);
     }
     if (ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status == true){
-        printf("Fill garbage\n");
         fill_garbage(&ftp->client[CLIENT_IDX(client)].cmd_info);
-        printf("Garbage: %s\n", ftp->client[CLIENT_IDX(client)].cmd_info.garbage);
         ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status = false;
     }
     return true;
@@ -214,15 +211,9 @@ static
 void reset_cmd(ftp_command_t *cmd_info)
 {
     memset(cmd_info->buffer, 0, DATA_BUFFER);
-    printf("Put in buffer:\n");
-    print_visible(cmd_info->buffer);
-    print_visible(cmd_info->garbage);
     strncpy(cmd_info->buffer, cmd_info->garbage, CMD_BUFFER);
     memset(cmd_info->garbage, 0, DATA_BUFFER);
     memset(cmd_info->command, 0, CMD_BUFFER);
-    printf("Reset garbage and command:\n");
-    print_visible(cmd_info->buffer);
-    print_visible(cmd_info->garbage);
     cmd_info->nb_arg = 0;
     cmd_info->nb_crlf = 0;
     cmd_info->pos = 0;
