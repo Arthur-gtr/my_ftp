@@ -26,12 +26,14 @@ SERV += my_server/ftp/add_user.c
 #COMMAND UTILS
 SERV += my_server/ftp/command/cmd_tab.c
 SERV += my_server/ftp/command/command_tab.c
+SERV += my_server/ftp/command/parsing_command.c
 
 #COMMAND
 SERV += my_server/ftp/command/USER.c
 SERV += my_server/ftp/command/PWD.c
 SERV += my_server/ftp/command/PASV.c
 SERV += my_server/ftp/command/LIST.c
+SERV += my_server/ftp/command/CWD.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c

@@ -17,6 +17,7 @@ int user(ftp_t *ftp, int index, char *command);
 int password(ftp_t *ftp, int index, char *command);
 int test(ftp_t *ftp, int index, char *command);
 int list(ftp_t *ftp, int index, char *command);
+int cwd(ftp_t *ftp, int index, char *command);
 
 
 int type(ftp_t *ftp, int index, char *command){
@@ -26,7 +27,7 @@ int type(ftp_t *ftp, int index, char *command){
 
 const command_t command_tab[] = {
     {.command_name = "CDUP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = TEST},
-    {.command_name = "CWD",  .size = 3, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
+    {.command_name = "CWD",  .size = 3, .data_transfer =  false, .nb_argument = 1, .funct = &cwd},
     {.command_name = "DELE", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
     {.command_name = "HELP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = TEST},
     {.command_name = "LIST", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &list},

@@ -53,9 +53,10 @@
         struct sockaddr_in addr;/*IPV4 type*/
         socklen_t addrlen;
         char serv_wd[PATH_MAX];
-        int size_wd;
+        size_t size_wd;
     }server_t;
     
+    void print_visible(const char *s);
 
     typedef struct ftp_command_s{
 
@@ -130,6 +131,9 @@
     int add_user(ftp_t *ftp);
 
     /*Command utils*/
+    int get_n_arg(const char *buffer, char *dest, int n);
+    int get_number_arg(char *buffer);
+    int get_pos_arg(const char *buffer, int n);
     int command_parsing(ftp_t *ftp, int index);
     bool is_connected(client_t *client, int fd);
     /*Commands*/

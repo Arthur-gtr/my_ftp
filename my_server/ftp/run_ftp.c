@@ -134,7 +134,6 @@ int fill_current_cmd(ftp_command_t *cmd_info)
     return EXIT_FAILURE;
 }
 
-static
 void print_visible(const char *s)
 {
     for (int i = 0; s[i]; i++) {
