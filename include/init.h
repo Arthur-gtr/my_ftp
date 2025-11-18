@@ -10,7 +10,7 @@
     #define INIT_H
 
     #include "my_ftp.h"
-
+    
     int init_ftp(ftp_t *ftp);
     int init_polling(polling_t *polling, int fd_server);
     int init_server(server_t *serv, int port);

@@ -10,6 +10,10 @@
 #include <netinet/in.h> 
 #include <sys/socket.h> 
 
+#include <string.h>
+#include <limits.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -34,5 +38,8 @@ int init_server(server_t *serv, int port)
         close(serv->server_fd);
         return reterr("Listen Error");
     }
+    if (realpath(".", serv->serv_wd) == NULL)
+        return reterr("Work directory error");
+    serv->size_wd = strlen(serv->serv_wd);
     return EXIT_SUCCESS;
 }

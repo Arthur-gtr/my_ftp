@@ -14,6 +14,7 @@
     #include <sys/socket.h>
     #include <poll.h> 
     #include <stdbool.h>
+    #include <limits.h>
 
     #include "utils.h"
 
@@ -32,13 +33,8 @@
 
     #define TIMEOUT -1
 
+    #define MALLOC_FAILED -1
 
-    typedef struct server_s {
-        int server_fd;
-        struct sockaddr_in addr;/*IPV4 type*/
-        socklen_t addrlen;
-    }server_t;
-    
     /*CONNEXION*/
     #define RESET_FLAG 0
     #define USER_C (1 << 0)
@@ -48,7 +44,18 @@
     #define DATA_BUFFER 2048
     #define CMD_BUFFER 1024
 
-    #define EXIT_GARBAGE -1
+    #ifndef PATH_MAX     
+    #define PATH_MAX 4096
+    #endif 
+
+     typedef struct server_s {
+        int server_fd;
+        struct sockaddr_in addr;/*IPV4 type*/
+        socklen_t addrlen;
+        char serv_wd[PATH_MAX];
+        int size_wd;
+    }server_t;
+    
 
     typedef struct ftp_command_s{
 
@@ -58,7 +65,7 @@
         /*Temporary contain one commnande and arg*/
         char command[CMD_BUFFER];
         int size_cmd;
-        
+
         /*The number of arg after the command ex[LIST, USER, ect...]*/
         int nb_arg;
         bool garbage_status;
@@ -86,19 +93,22 @@
         uint8_t connection;
 
         /*Work directory*/
-        char *wd;
+        char wd[PATH_MAX];
+        int size_wd;
 
         /*command_buffer*/
         ftp_command_t cmd_info;
 
         /*PASV mode PORT mode or nothing*/
-        uint8_t mode;
+        uint8_t datatransfer_mode;
+        bool datatransfer_ready;
 
         /*Passive mode*/
         struct sockaddr_in addr_pasv;
         socklen_t addrlen_pasv;
 
         int pasv_fd;
+        int socket_fd;
     }client_t;
 
     typedef struct polling_s{

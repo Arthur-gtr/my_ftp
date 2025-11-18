@@ -68,14 +68,15 @@ int password(ftp_t *ftp, int index, char *command)
 
 int command_parsing(ftp_t *ftp, int index)
 {
-    int status = -1;
+    int status = -2;
     /*Get first arg*/
     for (size_t i = 0; i != sz_tab_cmd; i++){
         if (strncmp(command_tab[i].command_name, ftp->client[CLIENT_IDX(index)].cmd_info.command, command_tab[i].size) == 0){
             status = command_tab[i].funct(ftp, index, ftp->client[CLIENT_IDX(index)].cmd_info.command);
         }
-        if (status != -1)
+        if (status == MALLOC_FAILED || status == EXIT_SUCCESS){
             return status;
+        }
     }
     write(ftp->polling.fds[index].fd, "500 Syntax error, command unrecognized.\r\n", 41);
     return reterr("500 Syntax error, command unrecognized.");

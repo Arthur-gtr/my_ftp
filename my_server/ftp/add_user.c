@@ -89,9 +89,9 @@ int add_user(ftp_t *ftp)
         return EXIT_FAILURE;
     ftp->client[ftp->client->size - 1].addrlen = sizeof(struct sockaddr_in);
     ftp->client[ftp->client->size - 1].connection = RESET_FLAG;
-    ftp->client[ftp->client->size - 1].wd = strdup("/");
-    if (ftp->client[ftp->client->size - 1].wd == NULL)
-        reterr("Malloc failed");
+    strncpy(ftp->client[ftp->client->size - 1].wd,"/", PATH_MAX);
+    ftp->client[ftp->client->size - 1].datatransfer_mode = 0;
+    ftp->client[ftp->client->size - 1].datatransfer_ready= false;
     if (accept_connection(&ftp->polling.fds[ftp->client->size], ftp->server.server_fd, &ftp->client[ftp->client->size - 1]) == EXIT_FAILURE)
         return EXIT_FAILURE;
     write(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n", 17);

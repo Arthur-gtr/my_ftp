@@ -27,10 +27,10 @@
 int get_data(ftp_t *ftp, int index)
 {
     int status = 0;
-    char buffer[2048];
+    char buffer[DATA_BUFFER];
     /*ftp->client[CLIENT_IDX(index)].cmd_info.buffer*/
 
-    status = read(ftp->polling.fds[index].fd, buffer, 2048);
+    status = read(ftp->polling.fds[index].fd, buffer, DATA_BUFFER);
     if (status == -1)
         return EXIT_FAILURE;
     if (status == 0){
@@ -188,21 +188,23 @@ void fill_garbage(ftp_command_t *cmd_info)
 }
 
 static
-bool execute(ftp_t *ftp, int client)
+int execute(ftp_t *ftp, int client)
 {
     for (int i = 0; ftp->client[CLIENT_IDX(client)].cmd_info.nb_crlf != i; i++){
-        if (fill_current_cmd(&ftp->client[CLIENT_IDX(client)].cmd_info) == EXIT_FAILURE){
+        if (fill_current_cmd(&ftp->client[CLIENT_IDX(client)].cmd_info) == EXIT_FAILURE)
             break;
-        }
         printf("ID: %d, Command: %s\n", i, ftp->client[CLIENT_IDX(client)].cmd_info.command);
-        write(1, "I am the dark: ", 15);
+        write(1, "Show CRLF:", 10);
         print_visible(ftp->client[CLIENT_IDX(client)].cmd_info.command);
-        command_parsing(ftp, client);
+        if (command_parsing(ftp, client) == MALLOC_FAILED){
+            printf("Command Parsing failed\n");
+            return MALLOC_FAILED;
+        }
         memset(ftp->client[CLIENT_IDX(client)].cmd_info.command, 0, CMD_BUFFER);
     }
     if (ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status == true){
         printf("Fill garbage\n");
-        fill_garbage(&ftp->client[CLIENT_IDX(client)].cmd_info);/*On balance tous dans le buffer garbage qui est fais pour ça*/
+        fill_garbage(&ftp->client[CLIENT_IDX(client)].cmd_info);
         printf("Garbage: %s\n", ftp->client[CLIENT_IDX(client)].cmd_info.garbage);
         ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status = false;
     }
@@ -233,6 +235,7 @@ void reset_cmd(ftp_command_t *cmd_info)
 static
 int check_client_event(ftp_t *ftp, int i)
 {
+    int test = 0; 
     if (!(ftp->polling.fds[i].revents & POLLIN))
         return EXIT_SUCCESS;
     if (check_force_deco(&ftp->polling.fds[i]) == EXIT_FAILURE)
@@ -240,11 +243,14 @@ int check_client_event(ftp_t *ftp, int i)
     if (get_data(ftp, i) == EXIT_FAILURE)
         return EXIT_SUCCESS;
     if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true){
-        printf("Buffer=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
-        execute(ftp, i);
+        //printf("Buffer=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
+        if(test = execute(ftp, i) == MALLOC_FAILED){
+            printf("Execute failed\n");
+            return MALLOC_FAILED;
+        }
+        printf("Not failed cause %d\n", test);
         reset_cmd(&ftp->client[CLIENT_IDX(i)].cmd_info);
     }
-    //command_parsing(ftp, i);
     return EXIT_SUCCESS;
 }
 
@@ -254,7 +260,10 @@ int check_event(ftp_t *ftp)
     if (check_server_event(ftp) == EXIT_FAILURE)
         return EXIT_FAILURE;   
     for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++)
-        check_client_event(ftp, i);
+        if (check_client_event(ftp, i) == MALLOC_FAILED){
+            printf("Check client Failed\n");
+            return EXIT_FAILURE;
+        }
     return EXIT_SUCCESS;
 }
 

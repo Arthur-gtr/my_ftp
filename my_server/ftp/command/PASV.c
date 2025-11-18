@@ -1,4 +1,5 @@
 #include "my_ftp.h"
+#include "command.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,10 +37,12 @@ int pasv(ftp_t *ftp, int index, char *command)
     unsigned char *ip = NULL;
     int port = 0;
 
-    printf("PASV\n");
     if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
-    init_pasv(&ftp->client[CLIENT_IDX(index)]);
+    if (init_pasv(&ftp->client[CLIENT_IDX(index)]) == EXIT_FAILURE)
+        return MALLOC_FAILED;
+    ftp->client[CLIENT_IDX(index)].datatransfer_ready = true;
+    ftp->client[CLIENT_IDX(index)].datatransfer_mode = PASV;
     ip = (unsigned char *)&ftp->client[CLIENT_IDX(index)].addr.sin_addr;
     port = ntohs(ftp->client[CLIENT_IDX(index)].addr_pasv.sin_port);
     dprintf(ftp->polling.fds[index].fd, "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d).\r\n", ip[0], ip[1], ip[2], ip[3], port / 256, port % 256);
