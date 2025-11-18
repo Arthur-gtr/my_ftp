@@ -72,17 +72,17 @@ int refresh_path(char path[PATH_MAX], const char *new_path, const server_t *serv
     if (*new_path == '/'){
         memset(path, 0, PATH_MAX);
         strncpy(path, new_path, PATH_MAX);
-        return 0;
+        return EXIT_SUCCESS;
     }
-    realpath(new_path, path);
-    
+    if (realpath(new_path, path) == NULL)
+        return EXIT_FAILURE;
     for (int i = serv->size_wd; path[i] != 0 ; i++){
         path[count] = path[i];
         count++;
     }
     for (int i = count; path[i]!= '\0';i++)
         path[i] = '\0';
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int list(ftp_t *ftp, int index, char *command)
