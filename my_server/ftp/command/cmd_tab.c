@@ -11,15 +11,6 @@
 
 #define TEST &test
 
-int syst(ftp_t *ftp, int index, char *command);
-int feat(ftp_t *ftp, int index, char *command);
-int user(ftp_t *ftp, int index, char *command);
-int password(ftp_t *ftp, int index, char *command);
-int test(ftp_t *ftp, int index, char *command);
-int list(ftp_t *ftp, int index, char *command);
-int cwd(ftp_t *ftp, int index, char *command);
-int cdup(ftp_t *ftp, int index, char *command);
-
 
 int type(ftp_t *ftp, int index, char *command){
     dprintf(ftp->polling.fds[index].fd, "200 Okay\r\n");
@@ -32,7 +23,7 @@ const command_t command_tab[] = {
     {.command_name = "DELE", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
     {.command_name = "HELP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = TEST},
     {.command_name = "LIST", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &list},
-    {.command_name = "NOOP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = TEST},
+    {.command_name = "NOOP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &noop},
     {.command_name = "PASS", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = &password},
     {.command_name = "PASV", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &pasv},
     {.command_name = "PORT", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},

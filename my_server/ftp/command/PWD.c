@@ -16,6 +16,10 @@ int pwd(ftp_t *ftp, int index, char *command)
 {
     if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
+    if (get_number_arg(command) > 1){
+        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        return EXIT_SUCCESS;
+    }
     printf("257 \"%s\"\r\n",ftp->client[CLIENT_IDX(index)].wd);
     dprintf(ftp->polling.fds[index].fd, "257 \"%s\"\r\n",ftp->client[CLIENT_IDX(index)].wd);
     return EXIT_SUCCESS;

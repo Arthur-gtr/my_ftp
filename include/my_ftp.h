@@ -142,6 +142,14 @@
     int password(ftp_t *ftp, int index, char *command);
     int pwd(ftp_t *ftp, int index, char *command);
     int pasv(ftp_t *ftp, int index, char *command);
+    int syst(ftp_t *ftp, int index, char *command);
+    int user(ftp_t *ftp, int index, char *command);
+    int password(ftp_t *ftp, int index, char *command);
+    int test(ftp_t *ftp, int index, char *command);
+    int list(ftp_t *ftp, int index, char *command);
+    int cwd(ftp_t *ftp, int index, char *command);
+    int cdup(ftp_t *ftp, int index, char *command);
+    int noop(ftp_t *ftp, int index, char *command);
 
     /*FREE*/
     void destroy_ftp(ftp_t *ftp);

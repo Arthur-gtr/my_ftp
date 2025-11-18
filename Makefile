@@ -10,6 +10,7 @@ NAME_S = my_ftp
 SERV = my_server/server.c
 
 #INIT
+
 SERV += my_server/init/init_ftp.c
 SERV += my_server/init/init_server.c
 SERV += my_server/init/init_polling.c
@@ -29,6 +30,7 @@ SERV += my_server/ftp/command/command_tab.c
 SERV += my_server/ftp/command/parsing_command.c
 
 #COMMAND
+SERV += my_server/ftp/command/NOOP.c
 SERV += my_server/ftp/command/USER.c
 SERV += my_server/ftp/command/PWD.c
 SERV += my_server/ftp/command/PASV.c
