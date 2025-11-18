@@ -42,6 +42,7 @@ SERV += my_server/ftp/command/CDUP.c
 SERV += my_server/ftp/command/RETR.c
 SERV += my_server/ftp/command/PASS.c
 SERV += my_server/ftp/command/HELP.c
+SERV += my_server/ftp/command/DELE.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c

@@ -155,6 +155,7 @@
     int noop(ftp_t *ftp, int index, char *command);
     int retr(ftp_t *ftp, int index, char *command);
     int help(ftp_t *ftp, int index, char *command);
+    int dele(ftp_t *ftp, int index, char *command);
 
     /*FREE*/
     void destroy_ftp(ftp_t *ftp);
