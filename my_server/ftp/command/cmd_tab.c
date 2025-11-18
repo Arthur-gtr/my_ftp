@@ -21,7 +21,7 @@ const command_t command_tab[] = {
     {.command_name = "CDUP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &cdup},
     {.command_name = "CWD",  .size = 3, .data_transfer =  false, .nb_argument = 1, .funct = &cwd},
     {.command_name = "DELE", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = TEST},
-    {.command_name = "HELP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = TEST},
+    {.command_name = "HELP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &help},
     {.command_name = "LIST", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &list},
     {.command_name = "NOOP", .size = 4, .data_transfer =  false, .nb_argument = 0, .funct = &noop},
     {.command_name = "PASS", .size = 4, .data_transfer =  false, .nb_argument = 1, .funct = &password},
