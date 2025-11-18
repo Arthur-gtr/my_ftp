@@ -17,7 +17,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-int get_from_client(char path[PATH_MAX], int socket_fd, char *file_name)
+int get_from_client(char path[PATH_MAX], int socket_fd)
 {
     int status = 1;
     int fd = open(path, O_WRONLY | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
@@ -34,7 +34,7 @@ int get_from_client(char path[PATH_MAX], int socket_fd, char *file_name)
     return EXIT_SUCCESS;
 }
 /*fd = open(new_path, O_WRONLY | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);*/
-int run_stor(char path[PATH_MAX],int control_socket, int socket_fd, char *file_name)
+int run_stor(char path[PATH_MAX],int control_socket, int socket_fd)
 {
     pid_t p;
 
@@ -45,7 +45,7 @@ int run_stor(char path[PATH_MAX],int control_socket, int socket_fd, char *file_n
     }
     if (p == 0){
         dprintf(control_socket, "150 Opening data connection.\r\n");
-        get_from_client(path, socket_fd, file_name);
+        get_from_client(path, socket_fd);
         dprintf(control_socket, "226 Closing data connection.\r\n");
         close(socket_fd);
         exit(0);
@@ -93,22 +93,15 @@ int stor(ftp_t *ftp, int index, char *command)
     }
     strncpy(path, ftp->client[CLIENT_IDX(index)].wd, PATH_MAX);
     get_n_arg(command, new_path, 2);
-    refresh_path(path, new_path, &ftp->server);
-    //if (realpath(new_path, path) == NULL){
-    //    dprintf(ftp->polling.fds[index].fd, "550 Failed to open file.\r\n");
-    //    return EXIT_SUCCESS;
-    //}
-    if (is_file(path) == false){
-        dprintf(ftp->polling.fds[index].fd, "550 Must be a file.\r\n");
-        return EXIT_SUCCESS;
-    }
+    if (*new_path == '/')
+        getnfilename(file_name, new_path, 256);
+    refresh_path(path, (*new_path == '/') ? file_name : new_path, &ftp->server);
     status = accept_co(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
     if (status == DATA_NOT_READY || status == EXIT_FAILURE){
         if (status == DATA_NOT_READY) printf("Data not ready\n");
         return status;
     }
-    getnfilename(file_name, path, 256);
-    run_stor(path, ftp->polling.fds[index].fd, ftp->client[CLIENT_IDX(index)].socket_fd, file_name);
+    run_stor(path, ftp->polling.fds[index].fd, ftp->client[CLIENT_IDX(index)].socket_fd);
     ftp->client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
     return EXIT_SUCCESS;
 }
