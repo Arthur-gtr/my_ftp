@@ -48,6 +48,8 @@
     #define PATH_MAX 4096
     #endif 
 
+    #define CDUP_ARG "cwd .."
+
      typedef struct server_s {
         int server_fd;
         struct sockaddr_in addr;/*IPV4 type*/

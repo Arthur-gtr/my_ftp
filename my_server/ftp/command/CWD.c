@@ -30,6 +30,10 @@ int cwd(ftp_t *ftp, int index, char *command)
 
     if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
+    if (get_number_arg(command) > 2){
+        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        return EXIT_SUCCESS;
+    }
     get_n_arg(command, path_arg, 2);
     /*Si le path_arg commence par / alors je dois le concaténer par rapport au server->wd*/
     if ((*path_arg) == '/'){
@@ -40,12 +44,12 @@ int cwd(ftp_t *ftp, int index, char *command)
     printf("Path Arg: %s\n", path_arg);
     print_visible(path_arg);
     if (chdir(path_arg) == -1){
-        dprintf(ftp->polling.fds[index].fd, "500 chdir failed.\r\n");
+        dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
         /*CHECK ERNO POUR VOIR SI LE PATH EXISTE*/
         return EXIT_SUCCESS;
     }
     if (getcwd(new_wc, sizeof(new_wc)) == NULL){
-        dprintf(ftp->polling.fds[index].fd, "500 getcwd failed\r\n");
+        dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
         return EXIT_SUCCESS;
     }
     if (strlen(new_wc) < ftp->server.size_wd){
@@ -54,7 +58,7 @@ int cwd(ftp_t *ftp, int index, char *command)
         strncat(new_wc, ftp->client[CLIENT_IDX(index)].wd, sizeof(new_wc) - strlen(new_wc));
         printf("Old wd: %s\n", new_wc);
         chdir(new_wc);
-        dprintf(ftp->polling.fds[index].fd, "500 Directory successfully changed.\r\n");
+        dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
         return EXIT_SUCCESS;
     }
     int count = 0;

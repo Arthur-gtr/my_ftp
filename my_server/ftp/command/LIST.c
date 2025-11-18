@@ -105,20 +105,55 @@ int accept_co(client_t *client, int fd)
     return DATA_NOT_READY;
 }
 
+int refresh_path(char path[PATH_MAX], const char *new_path, const server_t *serv)
+{
+    int count = 0;
+
+    if (*new_path == '/'){
+        memset(path, 0, PATH_MAX);
+        strncpy(path, new_path, PATH_MAX);
+        return 0;
+    }
+    realpath(new_path, path);
+    
+    for (int i = serv->size_wd; path[i] != 0 ; i++){
+        path[count] = path[i];
+        count++;
+    }
+    for (int i = count; path[i]!= '\0';i++)
+        path[i] = '\0';
+    return 0;
+}
+
 int list(ftp_t *ftp, int index, char *command)
 {
     int status = 0;
+    int nb_arg = get_number_arg(command);
+    char path[PATH_MAX] = {0};
+    char new_path[PATH_MAX] = {0};
 
+    
+    strncpy(path, ftp->client[CLIENT_IDX(index)].wd, PATH_MAX);
     printf("Start LIST\n");
     if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
+    if (nb_arg > 2){
+        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        return EXIT_SUCCESS;
+    }
     status = accept_co(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
     if (status == DATA_NOT_READY || status == EXIT_FAILURE){
         if (status == DATA_NOT_READY) printf("Data not ready\n");
         return status;
     }
+    if (nb_arg == 2){
+        get_n_arg(command,new_path ,2);
+        printf("Second Arg = %s\n", new_path);
+        refresh_path(path, new_path, &ftp->server);
+        printf("New Path = %s\n", path);
+    }
     dprintf(ftp->polling.fds[index].fd, "150 Opening data connection.\r\n");
-    give_list_to_the_client(ftp->client[CLIENT_IDX(index)].socket_fd, ftp->polling.fds[index].fd, &ftp->server, ftp->client[CLIENT_IDX(index)].wd);
+    give_list_to_the_client(ftp->client[CLIENT_IDX(index)].socket_fd, ftp->polling.fds[index].fd, &ftp->server, path);
     ftp->client[CLIENT_IDX(index)].datatransfer_mode = 0;
     return EXIT_SUCCESS;
 }
