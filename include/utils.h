@@ -8,6 +8,7 @@
 
 #ifndef UTIILS_H
     #define UTIILS_H
+    #define IS_EMPTY(x) (x == '\0')
 
     int reterr(char *str);
     char **my_str_to_word_array(char *str, char *separator);

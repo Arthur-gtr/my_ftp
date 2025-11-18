@@ -43,6 +43,7 @@ int accept_in_co(client_t *client)
 
 int fill_ls_buffer(int fd, server_t *serv, const char client_wd[PATH_MAX], char dest[PATH_MAX + 10])
 {
+    memset(dest,0, PATH_MAX + 10);
     if (serv->size_wd + strlen(client_wd) + 5 >= PATH_MAX){
         dprintf(fd, "400 wd overflow\r\n");
         return EXIT_FAILURE;
@@ -50,7 +51,7 @@ int fill_ls_buffer(int fd, server_t *serv, const char client_wd[PATH_MAX], char 
     strncpy(dest, "ls -l ", PATH_MAX);
     strncat(dest, serv->serv_wd, PATH_MAX);
     strncat(dest, client_wd, PATH_MAX);
-    printf("Cmd buffer: %s", dest);
+    printf("Cmd buffer: %s\n", dest);
     return EXIT_SUCCESS;
 }
 

@@ -6,6 +6,7 @@
 */
 #include "my_ftp.h"
 #include "command.h"
+#include "utils.h"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -57,11 +58,16 @@ int cwd(ftp_t *ftp, int index, char *command)
         return EXIT_SUCCESS;
     }
     int count = 0;
+    printf("wc = %s\n", new_wc);
+    memset(ftp->client[CLIENT_IDX(index)].wd, 0, PATH_MAX);
+
     for (int i = ftp->server.size_wd; new_wc[i] != '\0'; i++){
         ftp->client[CLIENT_IDX(index)].wd[count] = new_wc[i];
         count++;
     }
-    ftp->client[CLIENT_IDX(index)].wd[count + 1] = '\0';
+    ftp->client[CLIENT_IDX(index)].wd[count] = '\0';
+    if (IS_EMPTY(*ftp->client[CLIENT_IDX(index)].wd))
+        *ftp->client[CLIENT_IDX(index)].wd = '/';
     dprintf(ftp->polling.fds[index].fd, "250 Directory successfully changed.\r\n");
     /*je dois get le premier arg dans un buffer*/
     /*On vas faire une simulation du déplacment via chdir puis si il y a une erreur on n' écrase pas pas le path en mémoire*/
