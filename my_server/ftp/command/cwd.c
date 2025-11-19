@@ -23,49 +23,24 @@ void prepend(char *dest, const char *src)
     memcpy(dest, src, len_src);
 }
 
-int cwd(ftp_t *ftp, int index, char *command)
+static
+int reset_cwd(char *new_wc, ftp_t *ftp, int index)
 {
-    char path_arg[CMD_BUFFER] = {0};
-    char new_wc[PATH_MAX] = {0};
+    memset(new_wc, 0, sizeof(new_wc));
+    strncpy(new_wc, ftp->server.serv_wd, sizeof(new_wc));
+    strncat(new_wc, ftp->client[CLIENT_IDX(index)].wd,
+        sizeof(new_wc) - strlen(new_wc));
+    chdir(new_wc);
+    dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
+    return EXIT_SUCCESS;
+}
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
-        ftp->polling.fds[index].fd) == false)
-        return EXIT_SUCCESS;
-    if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd,
-            "ftp 501 server cannot accept argument\r\n");
-        return EXIT_SUCCESS;
-    }
-    get_n_arg(command, path_arg, 2);
-    if ((*path_arg) == '/'){
-        printf("Add pre loc\n");
-        prepend(path_arg, ftp->server.serv_wd);
-    }
-    printf("Number of arg == %d\n", get_number_arg(command));
-    printf("Path Arg: %s\n", path_arg);
-    print_visible(path_arg);
-    if (chdir(path_arg) == -1){
-        dprintf(ftp->polling.fds[index].fd,
-            "550 Failed to change directory.\r\n");
-        return EXIT_SUCCESS;
-    }
-    if (getcwd(new_wc, sizeof(new_wc)) == NULL){
-        dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
-        return EXIT_SUCCESS;
-    }
-    if (strlen(new_wc) < ftp->server.size_wd){
-        memset(new_wc, 0, sizeof(new_wc));
-        strncpy(new_wc, ftp->server.serv_wd, sizeof(new_wc));
-        strncat(new_wc, ftp->client[CLIENT_IDX(index)].wd, sizeof(new_wc) - strlen(new_wc));
-        printf("Old wd: %s\n", new_wc);
-        chdir(new_wc);
-        dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
-        return EXIT_SUCCESS;
-    }
+static
+void change_cwd(ftp_t *ftp, int index, char *new_wc)
+{
     int count = 0;
-    printf("wc = %s\n", new_wc);
-    memset(ftp->client[CLIENT_IDX(index)].wd, 0, PATH_MAX);
 
+    memset(ftp->client[CLIENT_IDX(index)].wd, 0, PATH_MAX);
     for (int i = ftp->server.size_wd; new_wc[i] != '\0'; i++){
         ftp->client[CLIENT_IDX(index)].wd[count] = new_wc[i];
         count++;
@@ -73,8 +48,48 @@ int cwd(ftp_t *ftp, int index, char *command)
     ftp->client[CLIENT_IDX(index)].wd[count] = '\0';
     if (IS_EMPTY(*ftp->client[CLIENT_IDX(index)].wd))
         *ftp->client[CLIENT_IDX(index)].wd = '/';
-    dprintf(ftp->polling.fds[index].fd, "250 Directory successfully changed.\r\n");
-    /*je dois get le premier arg dans un buffer*/
-    /*On vas faire une simulation du déplacment via chdir puis si il y a une erreur on n' écrase pas pas le path en mémoire*/
+    dprintf(ftp->polling.fds[index].fd,
+        "250 Directory successfully changed.\r\n");
+}
+
+static
+int init_cwd(ftp_t *ftp, char *command, int index)
+{
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
+        return EXIT_FAILURE;
+    if (get_number_arg(command) > 2){
+        dprintf(ftp->polling.fds[index].fd,
+            "ftp 501 server cannot accept argument\r\n");
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+int retdprint(const char *src, int fd, int return_value)
+{
+    dprintf(fd, src);
+    return return_value;
+}
+
+int cwd(ftp_t *ftp, int index, char *command)
+{
+    char path_arg[CMD_BUFFER] = {0};
+    char new_wc[PATH_MAX] = {0};
+    int count = 0;
+
+    if (init_cwd(ftp, command, index) == EXIT_FAILURE)
+        return EXIT_SUCCESS;
+    get_n_arg(command, path_arg, 2);
+    if ((*path_arg) == '/')
+        prepend(path_arg, ftp->server.serv_wd);
+    if (chdir(path_arg) == -1 || getcwd(new_wc, sizeof(new_wc)) == NULL){
+        dprintf(ftp->polling.fds[index].fd,
+            "550 Failed to change directory.\r\n");
+        return EXIT_SUCCESS;
+    }
+    if (strlen(new_wc) < ftp->server.size_wd)
+        return reset_cwd(new_wc, ftp, index);
+    change_cwd(ftp, index, new_wc);
     return 0;
 }
