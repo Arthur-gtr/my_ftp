@@ -126,6 +126,10 @@ int run_ftp(ftp_t *ftp);
 /*Connection*/
 int add_user(ftp_t *ftp);
 
+int get_data(ftp_t *ftp, int index);
+int check_force_deco(struct pollfd *poll_fd);
+int check_server_event(ftp_t *ftp);
+
 /*Command utils*/
 int get_n_arg(const char *buffer, char *dest, int n);
 int get_number_arg(char *buffer);
@@ -133,6 +137,9 @@ int get_pos_arg(const char *buffer, int n);
 int command_parsing(ftp_t *ftp, int index);
 bool is_connected(client_t *client, int fd);
 int accept_co(client_t *client, int fd);
+int refresh_path(char path[PATH_MAX],
+    const char *new_path, const server_t *serv);
+int fill_current_cmd(ftp_command_t *cmd_info);
 /*Commands*/
 int password(ftp_t *ftp, int index, char *command);
 int pwd(ftp_t *ftp, int index, char *command);

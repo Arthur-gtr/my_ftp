@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2025
+** my_ftp
+** File description:
+** port
+*/
+
 #include "my_ftp.h"
 #include "command.h"
 
@@ -16,14 +23,14 @@ int size_n_nb(int n, const char *buffer)
     bool is_int = false;
 
     for (int i = 0; buffer[i] != 0; i++){
-         if (count > n)
+        if (count > n)
             return size_int;
         if (isdigit(buffer[i]) && is_int == false)
             is_int = true;
         if (isdigit(buffer[i]) && count == n){
             size_int++;
         }
-        if(!isdigit(buffer[i]) && is_int == true){
+        if (!isdigit(buffer[i]) && is_int == true){
             count++;
             is_int = false;
         }
@@ -38,12 +45,13 @@ void replace_char(char *src, const char c, const char new_c)
             src[i] = new_c;
 }
 
+static
 int fill_ip(char ip[32], char arg[2048])
 {
     int size = 0;
     int pos = 0;
 
-    for(int i = 0; i != 4 ; i++){
+    for (int i = 0; i != 4; i++){
         size = size_n_nb(i, arg);
         pos += size;
         if (size == -1 || size > 3)
@@ -59,6 +67,7 @@ int fill_ip(char ip[32], char arg[2048])
     return pos;
 }
 
+static
 int fill_port(char *port, const char *src, int pos)
 {
     if (!isdigit(src[pos]))
@@ -72,6 +81,7 @@ int fill_port(char *port, const char *src, int pos)
     return pos;
 }
 
+static
 int get_port(int pos, const char *src)
 {
     char port1[4] = {0};
@@ -113,17 +123,25 @@ int init_sockadrr(client_t *client, char arg[2048])
     return 0;
 }
 
+int init_port(ftp_t *ftp, int index, char *command)
+{
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
+        return EXIT_FAILURE;
+    if (get_number_arg(command) > 2){
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
+        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
 int port(ftp_t *ftp, int index, char *command)
 {
     char arg[DATA_BUFFER] = {0};
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+    if (init_port(ftp, index, command) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
-        return EXIT_SUCCESS;
-    }
     get_n_arg(command, arg, 2);
     if (init_sockadrr(&ftp->client[CLIENT_IDX(index)], arg) == -1){
         ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;

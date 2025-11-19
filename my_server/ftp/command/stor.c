@@ -33,15 +33,15 @@ int get_from_client(char path[PATH_MAX], int socket_fd)
     }
     return EXIT_SUCCESS;
 }
-/*fd = open(new_path, O_WRONLY | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);*/
-int run_stor(char path[PATH_MAX],int control_socket, int socket_fd)
+
+int run_stor(char path[PATH_MAX], int control_socket, int socket_fd)
 {
     pid_t p;
 
     p = fork();
     if (p < 0) {
-      perror("fork fail");
-      exit(1);
+        perror("fork fail");
+        exit(1);
     }
     if (p == 0){
         dprintf(control_socket, "150 Opening data connection.\r\n");
@@ -53,8 +53,6 @@ int run_stor(char path[PATH_MAX],int control_socket, int socket_fd)
     close(socket_fd);
     return EXIT_SUCCESS;
 }
-
-int refresh_path(char path[PATH_MAX], const char *new_path, const server_t *serv);
 
 int getnfilename(char *dest, const char *src, int n)
 {
@@ -76,6 +74,29 @@ int getnfilename(char *dest, const char *src, int n)
     return 0;
 }
 
+static
+int init_stor(ftp_t *ftp, int index, int nb_arg)
+{
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
+        return EXIT_FAILURE;
+    if (nb_arg > 2){
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+static
+int change_path(char new_path[PATH_MAX],
+    char file_name[256], char path[PATH_MAX], server_t *server)
+{
+    if (*new_path == '/')
+        getnfilename(file_name, new_path, 256);
+    refresh_path(path, (*new_path == '/') ? file_name : new_path, server);
+    return 0;
+}
+
 int stor(ftp_t *ftp, int index, char *command)
 {
     int status = 0;
@@ -84,24 +105,17 @@ int stor(ftp_t *ftp, int index, char *command)
     char new_path[PATH_MAX] = {0};
     char file_name[256] = {0};
 
-    
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+    if (init_stor(ftp, index, nb_arg) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (nb_arg > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
-        return EXIT_SUCCESS;
-    }
     strncpy(path, ftp->client[CLIENT_IDX(index)].wd, PATH_MAX);
     get_n_arg(command, new_path, 2);
-    if (*new_path == '/')
-        getnfilename(file_name, new_path, 256);
-    refresh_path(path, (*new_path == '/') ? file_name : new_path, &ftp->server);
-    status = accept_co(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
-    if (status == DATA_NOT_READY || status == EXIT_FAILURE){
-        if (status == DATA_NOT_READY) printf("Data not ready\n");
+    change_path(new_path, file_name, path, &ftp->server);
+    status = accept_co(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd);
+    if (status == DATA_NOT_READY || status == EXIT_FAILURE)
         return status;
-    }
-    run_stor(path, ftp->polling.fds[index].fd, ftp->client[CLIENT_IDX(index)].socket_fd);
+    run_stor(path, ftp->polling.fds[index].fd,
+        ftp->client[CLIENT_IDX(index)].socket_fd);
     ftp->client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
     return EXIT_SUCCESS;
 }

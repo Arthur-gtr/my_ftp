@@ -26,10 +26,10 @@ void prepend(char *dest, const char *src)
 static
 int reset_cwd(char *new_wc, ftp_t *ftp, int index)
 {
-    memset(new_wc, 0, sizeof(new_wc));
-    strncpy(new_wc, ftp->server.serv_wd, sizeof(new_wc));
+    memset(new_wc, 0, strlen(new_wc));
+    strncpy(new_wc, ftp->server.serv_wd, PATH_MAX);
     strncat(new_wc, ftp->client[CLIENT_IDX(index)].wd,
-        sizeof(new_wc) - strlen(new_wc));
+        PATH_MAX - strlen(new_wc));
     chdir(new_wc);
     dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
     return EXIT_SUCCESS;
@@ -66,17 +66,10 @@ int init_cwd(ftp_t *ftp, char *command, int index)
     return EXIT_SUCCESS;
 }
 
-int retdprint(const char *src, int fd, int return_value)
-{
-    dprintf(fd, src);
-    return return_value;
-}
-
 int cwd(ftp_t *ftp, int index, char *command)
 {
     char path_arg[CMD_BUFFER] = {0};
     char new_wc[PATH_MAX] = {0};
-    int count = 0;
 
     if (init_cwd(ftp, command, index) == EXIT_FAILURE)
         return EXIT_SUCCESS;

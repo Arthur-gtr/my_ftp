@@ -8,6 +8,10 @@
 NAME_S = myftp
 
 SERV = my_server/server.c
+SERV += get_data.c
+SERV += check_event.c
+SERV += is_valid.c
+SERV += fill_current_cmd.c
 
 #INIT
 

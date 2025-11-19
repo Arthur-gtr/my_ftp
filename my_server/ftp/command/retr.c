@@ -33,14 +33,14 @@ int send_to_client(char path[PATH_MAX], int socket_fd)
     return EXIT_SUCCESS;
 }
 
-int run_retr(char path[PATH_MAX],int control_socket, int socket_fd)
+int run_retr(char path[PATH_MAX], int control_socket, int socket_fd)
 {
     pid_t p;
 
     p = fork();
     if (p < 0) {
-      perror("fork fail");
-      exit(1);
+        perror("fork fail");
+        exit(1);
     }
     if (p == 0){
         dprintf(control_socket, "150 Opening data connection.\r\n");
@@ -53,6 +53,18 @@ int run_retr(char path[PATH_MAX],int control_socket, int socket_fd)
     return EXIT_SUCCESS;
 }
 
+int init_retr(ftp_t *ftp, int index, int nb_arg)
+{
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
+        return EXIT_FAILURE;
+    if (nb_arg > 2){
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
 int retr(ftp_t *ftp, int index, char *command)
 {
     int status = 0;
@@ -60,29 +72,19 @@ int retr(ftp_t *ftp, int index, char *command)
     char path[PATH_MAX] = {0};
     char new_path[PATH_MAX] = {0};
 
-    printf("Start Retr\n");
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+    if (init_retr(ftp, index, nb_arg) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (nb_arg > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
-        return EXIT_SUCCESS;
-    }
     get_n_arg(command, new_path, 2);
-    if (realpath(new_path, path) == NULL){
+    if (realpath(new_path, path) == NULL || is_file(path) == false){
         dprintf(ftp->polling.fds[index].fd, "550 Failed to open file.\r\n");
         return EXIT_SUCCESS;
     }
-    if (is_file(path) == false){
-        dprintf(ftp->polling.fds[index].fd, "550 Must be a file.\r\n");
-        return EXIT_SUCCESS;
-    }
-    status = accept_co(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
-    if (status == DATA_NOT_READY || status == EXIT_FAILURE){
-        if (status == DATA_NOT_READY) printf("Data not ready\n");
+    status = accept_co(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd);
+    if (status == DATA_NOT_READY || status == EXIT_FAILURE)
         return status;
-    }
-    
-    run_retr(path, ftp->polling.fds[index].fd, ftp->client[CLIENT_IDX(index)].socket_fd);
+    run_retr(path, ftp->polling.fds[index].fd,
+            ftp->client[CLIENT_IDX(index)].socket_fd);
     ftp->client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
     return EXIT_SUCCESS;
 }

@@ -17,6 +17,7 @@
 static
 int accept_out_co(client_t *client, int fd)
 {
+    client->datatransfer_mode = RESET_FLAG;
     client->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client->socket_fd < 0)
         return EXIT_FAILURE;
@@ -31,6 +32,7 @@ int accept_out_co(client_t *client, int fd)
 static
 int accept_in_co(client_t *client, int fd)
 {
+    client->datatransfer_mode = RESET_FLAG;
     client->socket_fd = accept(client->pasv_fd,
         (struct sockaddr *)&client->addr,
         &client->addrlen);

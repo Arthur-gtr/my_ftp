@@ -14,9 +14,10 @@
 #include <fcntl.h>
 #include <string.h>
 
-int fill_ls_buffer(int fd, server_t *serv, const char client_wd[PATH_MAX], char dest[PATH_MAX + 10])
+int fill_ls_buffer(int fd, server_t *serv,
+    const char client_wd[PATH_MAX], char dest[PATH_MAX + 10])
 {
-    memset(dest,0, PATH_MAX + 10);
+    memset(dest, 0, PATH_MAX + 10);
     if (serv->size_wd + strlen(client_wd) + 5 >= PATH_MAX){
         dprintf(fd, "400 wd overflow\r\n");
         return EXIT_FAILURE;
@@ -31,7 +32,7 @@ int fill_ls_buffer(int fd, server_t *serv, const char client_wd[PATH_MAX], char 
 void run_ls(int fd, server_t *serv, const char client_wd[PATH_MAX])
 {
     char cmd[PATH_MAX + 10];
-    FILE *fp = NULL;/*popen("ls -l", "r");*/
+    FILE *fp = NULL;
     char buffer[PATH_MAX];
 
     if (fill_ls_buffer(fd, serv, client_wd, cmd) == EXIT_FAILURE)
@@ -46,26 +47,28 @@ void run_ls(int fd, server_t *serv, const char client_wd[PATH_MAX])
     pclose(fp);
 }
 
-void give_list_to_the_client(int fd, int control_fd, server_t *serv, const char client_wd[PATH_MAX])
+void give_list_to_the_client(int fd, int control_fd,
+    server_t *serv, const char client_wd[PATH_MAX])
 {
     pid_t p;
 
     p = fork();
     if (p < 0) {
-      perror("fork fail");
-      exit(1);
+        perror("fork fail");
+        exit(1);
     }
     if (p == 0){
         run_ls(fd, serv, client_wd);
         dprintf(control_fd, "226 Closing data connection.\r\n");
         close(fd);
-        exit(1);
+        exit(0);
     }
     close(fd);
     return;
 }
 
-int refresh_path(char path[PATH_MAX], const char *new_path, const server_t *serv)
+int refresh_path(char path[PATH_MAX],
+    const char *new_path, const server_t *serv)
 {
     int count = 0;
 
@@ -76,12 +79,25 @@ int refresh_path(char path[PATH_MAX], const char *new_path, const server_t *serv
     }
     if (realpath(new_path, path) == NULL)
         return EXIT_FAILURE;
-    for (int i = serv->size_wd; path[i] != 0 ; i++){
+    for (int i = serv->size_wd; path[i] != 0; i++){
         path[count] = path[i];
         count++;
     }
-    for (int i = count; path[i]!= '\0';i++)
+    for (int i = count; path[i] != '\0'; i++)
         path[i] = '\0';
+    return EXIT_SUCCESS;
+}
+
+static
+int init_ls(ftp_t *ftp, int nb_arg, int index)
+{
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
+        return EXIT_FAILURE;
+    if (nb_arg > 2){
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }
 
@@ -92,28 +108,19 @@ int list(ftp_t *ftp, int index, char *command)
     char path[PATH_MAX] = {0};
     char new_path[PATH_MAX] = {0};
 
-    
     strncpy(path, ftp->client[CLIENT_IDX(index)].wd, PATH_MAX);
-    printf("Start LIST\n");
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+    if (init_ls(ftp, nb_arg, index) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (nb_arg > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
-        return EXIT_SUCCESS;
-    }
-    status = accept_co(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
-    if (status == DATA_NOT_READY || status == EXIT_FAILURE){
-        if (status == DATA_NOT_READY) printf("Data not ready\n");
+    status = accept_co(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd);
+    if (status == DATA_NOT_READY || status == EXIT_FAILURE)
         return status;
-    }
     if (nb_arg == 2){
-        get_n_arg(command,new_path ,2);
-        printf("Second Arg = %s\n", new_path);
+        get_n_arg(command, new_path, 2);
         refresh_path(path, new_path, &ftp->server);
-        printf("New Path = %s\n", path);
     }
     dprintf(ftp->polling.fds[index].fd, "150 Opening data connection.\r\n");
-    give_list_to_the_client(ftp->client[CLIENT_IDX(index)].socket_fd, ftp->polling.fds[index].fd, &ftp->server, path);
-    ftp->client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
+    give_list_to_the_client(ftp->client[CLIENT_IDX(index)].socket_fd,
+        ftp->polling.fds[index].fd, &ftp->server, path);
     return EXIT_SUCCESS;
 }
