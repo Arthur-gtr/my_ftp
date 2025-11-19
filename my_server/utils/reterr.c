@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include <string.h>
 
-
-
 int reterr(char *str)
 {
     write(2, str, strlen(str));

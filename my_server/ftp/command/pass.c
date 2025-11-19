@@ -30,20 +30,21 @@ int password(ftp_t *ftp, int index, char *command)
 {
     command += 4;
     if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
     if (!(USER_C & ftp->client[CLIENT_IDX(index)].connection)){
-        printf("Username don't set: %d\n", ftp->client[CLIENT_IDX(index)].connection);
         write(ftp->polling.fds[index].fd, "530 Username don't set...\r\n", 27);
         return EXIT_SUCCESS;
     }
     if (paswd_valid(command) == EXIT_SUCCESS){
         ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
         ftp->client[CLIENT_IDX(index)].connection |= CONNECTED;
-        write(ftp->polling.fds[index].fd, "230 Password OK: Welcome aboard captain\r\n", 41);
+        write(ftp->polling.fds[index].fd,
+            "230 Password OK: Welcome aboard captain\r\n", 41);
         return EXIT_SUCCESS;
     }
-    write(ftp->polling.fds[index].fd, "501 Password error unvalid character...\r\n", 27);
+    write(ftp->polling.fds[index].fd,
+        "501 Password error unvalid character...\r\n", 27);
     return EXIT_SUCCESS;
 }

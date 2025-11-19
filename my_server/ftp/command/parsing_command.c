@@ -6,10 +6,9 @@
 */
 
 #include <stdlib.h>
-#include <my_ftp.h>
+#include "my_ftp.h"
 #include <stdio.h>
 #include <string.h>
-#define CMD_SEPARATOR(c_cmd) (c_cmd == ' ' || c_cmd == '\t')
 
 int get_number_arg(char *buffer)
 {
@@ -51,14 +50,15 @@ int get_pos_arg(const char *buffer, int n)
 
 int get_n_arg(const char *buffer, char *dest, int n)
 {
-    int idx_begin = get_pos_arg(buffer, n);;
+    int idx_begin = get_pos_arg(buffer, n);
     int count = 0;
 
-    for(int i = idx_begin; buffer[i] != '\t' && buffer[i] != ' ' && buffer[i] != 0; i++ ){
+    for (int i = idx_begin; buffer[i] != '\t' && buffer[i] != ' ' &&
+        buffer[i] != 0; i++){
         if (strncmp(&buffer[i], CRLF, 2) == 0)
             return count;
         dest[count] = buffer[i];
-        count++;   
+        count++;
     }
     printf("Gzt %d arg: %s\n", n, dest);
     return count;

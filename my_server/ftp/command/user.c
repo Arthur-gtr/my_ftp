@@ -13,7 +13,7 @@
 
 bool char_in_str(char c, char *cmp)
 {
-    for (; *cmp != '\0' ; cmp++){
+    for (; *cmp != '\0'; cmp++){
         if (*cmp == c)
             continue;
         return false;
@@ -33,7 +33,7 @@ int skip_garbage(char *garbage, char *command, int init_pos)
 int user(ftp_t *ftp, int index, char *command)
 {
     if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
     ftp->client[CLIENT_IDX(index)].connection = RESET_FLAG;

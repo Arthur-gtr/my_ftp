@@ -52,6 +52,8 @@
 
     #define IP_SZ 32
 
+    #define CMD_SEPARATOR(c_cmd) (c_cmd == ' ' || c_cmd == '\t')
+
 typedef struct server_s {
     int server_fd;
     struct sockaddr_in addr;/*IPV4 type*/
@@ -152,5 +154,7 @@ int port(ftp_t *ftp, int index, char *command);
 
 /*FREE*/
 void destroy_ftp(ftp_t *ftp);
+
+    #define ARG_501 "ftp 501 server cannot accept argument\r\n"
 
 #endif /*MY_FTP_H*/

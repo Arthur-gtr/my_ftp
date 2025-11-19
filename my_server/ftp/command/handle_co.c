@@ -20,9 +20,10 @@ int accept_out_co(client_t *client, int fd)
     client->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client->socket_fd < 0)
         return EXIT_FAILURE;
-
-    if (connect(client->socket_fd, (struct sockaddr *)&client->addr_port, sizeof(client->addr_port)) < 0) {
-       dprintf(fd, "425 Can't open data connection");
+    if (connect(client->socket_fd,
+        (struct sockaddr *)&client->addr_port,
+        sizeof(client->addr_port)) < 0) {
+        dprintf(fd, "425 Can't open data connection");
     }
     return 0;
 }
@@ -30,7 +31,9 @@ int accept_out_co(client_t *client, int fd)
 static
 int accept_in_co(client_t *client, int fd)
 {
-    client->socket_fd = accept(client->pasv_fd, (struct sockaddr *)&client->addr, &client->addrlen);
+    client->socket_fd = accept(client->pasv_fd,
+        (struct sockaddr *)&client->addr,
+        &client->addrlen);
     if (client->socket_fd == -1){
         dprintf(fd, "425 Can't open data connection");
         return MALLOC_FAILED;
@@ -40,7 +43,7 @@ int accept_in_co(client_t *client, int fd)
 
 int accept_co(client_t *client, int fd)
 {
-    if (client->datatransfer_ready == false){    
+    if (client->datatransfer_ready == false){
         dprintf(fd, "425 Can't open data connection.\r\n");
         return EXIT_FAILURE;
     }

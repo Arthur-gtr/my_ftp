@@ -5,10 +5,9 @@
 ** init_polling
 */
 
-/*Network*/
-#include <netdb.h> 
-#include <netinet/in.h> 
-#include <sys/socket.h> 
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 #include <stdlib.h>
 

@@ -5,6 +5,7 @@
 ** HELP
 */
 #include "my_ftp.h"
+#include "help.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -12,20 +13,19 @@
 #include <stdio.h>
 
 const char *help_tab[] = {
-    "USER <SP> <username> <CRLF>   : Specify user for authentication\r\n",
-    "PASS <SP> <password> <CRLF>   : Specify password for authentication\r\n",
-    "CWD  <SP> <pathname> <CRLF>   : Change working directory\r\n",
-    "CDUP <CRLF>                   : Change working directory to parent directory\r\n",
-    "QUIT <CRLF>                   : Disconnection\r\n",
-    "DELE <SP> <pathname> <CRLF>   : Delete file on the server\r\n",
-    "PWD  <CRLF>                   : Print working directory\r\n",
-    "PASV <CRLF>                   : Enable \"passive\" mode for data transfer\r\n",
-    "PORT <SP> <host-port> <CRLF>  : Enable \"active\" mode for data transfer\r\n",
-    "HELP [<SP> <string>] <CRLF>   : List available commands\r\n",
-    "NOOP <CRLF>                   : Do nothing\r\n",
-    "RETR <SP> <pathname> <CRLF>   : Download file from server to client\r\n",
-    "STOR <SP> <pathname> <CRLF>   : Upload file from client to server\r\n",
-    "LIST [<SP> <pathname>] <CRLF> : List files in the current working directory\r\n",
+    HELP_USER,
+    HELP_PASS,
+    HELP_CWD,
+    HELP_QUIT,
+    HELP_DELE,
+    HELP_PWD,
+    HELP_PASV,
+    HELP_PORT,
+    HELP_HELP,
+    HELP_NOOP,
+    HELP_RETR,
+    HELP_STOR,
+    HELP_LIST,
     NULL
 };
 
@@ -41,18 +41,19 @@ void show_cmd(char *cmd, int fd)
 
     for (int i = 0; help_tab[i] != NULL; i++)
         if (strncmp(cmd, help_tab[i], size_cmd) == 0)
-            dprintf(fd,"%s", help_tab[i]);
+            dprintf(fd, "%s", help_tab[i]);
 }
 
 int help(ftp_t *ftp, int index, char *command)
 {
     int nb_arg = get_number_arg(command);
     char cmd[5] = {0};
-    
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (nb_arg > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
     if (nb_arg == 1)

@@ -10,14 +10,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+
 int dele(ftp_t *ftp, int index, char *command)
-{   
+{
     char path[DATA_BUFFER] = {0};
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
     get_n_arg(command, path, 2);

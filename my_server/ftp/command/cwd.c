@@ -18,24 +18,25 @@ void prepend(char *dest, const char *src)
 {
     size_t len_src = strlen(src);
     size_t len_dest = strlen(dest);
+
     memmove(dest + len_src, dest, len_dest + 1);
     memcpy(dest, src, len_src);
 }
-
 
 int cwd(ftp_t *ftp, int index, char *command)
 {
     char path_arg[CMD_BUFFER] = {0};
     char new_wc[PATH_MAX] = {0};
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
+    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
+        dprintf(ftp->polling.fds[index].fd,
+            "ftp 501 server cannot accept argument\r\n");
         return EXIT_SUCCESS;
     }
     get_n_arg(command, path_arg, 2);
-    /*Si le path_arg commence par / alors je dois le concaténer par rapport au server->wd*/
     if ((*path_arg) == '/'){
         printf("Add pre loc\n");
         prepend(path_arg, ftp->server.serv_wd);
@@ -44,8 +45,8 @@ int cwd(ftp_t *ftp, int index, char *command)
     printf("Path Arg: %s\n", path_arg);
     print_visible(path_arg);
     if (chdir(path_arg) == -1){
-        dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
-        /*CHECK ERNO POUR VOIR SI LE PATH EXISTE*/
+        dprintf(ftp->polling.fds[index].fd,
+            "550 Failed to change directory.\r\n");
         return EXIT_SUCCESS;
     }
     if (getcwd(new_wc, sizeof(new_wc)) == NULL){
