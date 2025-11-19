@@ -23,9 +23,7 @@ int init_pasvdadrr(struct sockaddr_in *addr_pasv, int pasv_fd)
     addr_pasv->sin_family = AF_INET;
     addr_pasv->sin_addr.s_addr = INADDR_ANY;
     addr_pasv->sin_port = htons(0);
-    if (bind(pasv_fd,
-        (struct sockaddr *)addr_pasv,
-        sizeof(addr_pasv)) < 0) {
+    if (bind(pasv_fd, (struct sockaddr *)addr_pasv, sizeof(*addr_pasv)) < 0) {
         close(pasv_fd);
         return reterr("Bind Error");
     }
@@ -41,8 +39,7 @@ int init_pasv(client_t *client)
     client->pasv_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client->pasv_fd < 0)
         return reterr("Socket build error");
-    if (init_pasvdadrr(&client->addr_pasv, client->pasv_fd)
-        == EXIT_FAILURE)
+    if (init_pasvdadrr(&client->addr_pasv, client->pasv_fd) == EXIT_FAILURE)
         return EXIT_FAILURE;
     client->addrlen_pasv = sizeof(client->addr_pasv);
     if (getsockname(client->pasv_fd,
