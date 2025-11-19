@@ -5,7 +5,7 @@
 ## .
 ##
 
-NAME_S = my_ftp
+NAME_S = myftp
 
 SERV = my_server/server.c
 
