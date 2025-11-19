@@ -16,10 +16,10 @@
 
 #include "init.h"
 
-int init_ftp(ftp_t *ftp, char *port)
+int init_ftp(ftp_t *ftp, char *port, char *path)
 {
     ftp->running = RUNNING;
-    if (init_server(&ftp->server, atoi(port)) == EXIT_FAILURE)
+    if (init_server(&ftp->server, atoi(port), path) == EXIT_FAILURE)
         return EXIT_FAILURE;
     ftp->client = malloc(sizeof(client_t));
     if (ftp->client == NULL)

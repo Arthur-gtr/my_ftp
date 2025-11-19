@@ -22,7 +22,7 @@
 
 
 /*INIT the server and fill the serv structure*/
-int init_server(server_t *serv, int port)
+int init_server(server_t *serv, int port, char *path)
 {
     serv->server_fd = socket(AF_INET, SOCK_STREAM, 0);/*Ouvre un fd*/
     if (serv->server_fd < 0)
@@ -38,7 +38,7 @@ int init_server(server_t *serv, int port)
         close(serv->server_fd);
         return reterr("Listen Error");
     }
-    if (realpath(".", serv->serv_wd) == NULL)
+    if (realpath(path, serv->serv_wd) == NULL)
         return reterr("Work directory error");
     chdir(serv->serv_wd);
     serv->size_wd = strlen(serv->serv_wd);

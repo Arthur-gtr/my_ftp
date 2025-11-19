@@ -25,11 +25,11 @@ Boucle Poll pour pouvoir gardé lire tout en meme temps
 */
 
 
-int my_ftp(char *port)
+int my_ftp(char *port, char *path)
 {
     ftp_t ftp;
 
-    if (init_ftp(&ftp, port) == EXIT_FAILURE)
+    if (init_ftp(&ftp, port, path) == EXIT_FAILURE)
         return EXIT_FAILURE;
     if(run_ftp(&ftp) == EXIT_FAILURE){
         destroy_ftp(&ftp);
@@ -43,7 +43,7 @@ int main(int ac, char **av)
 {
     (void)(ac);
     (void)(av);
-    if (ac < 2)
+    if (ac < 3)
         return 84;
-    return my_ftp(av[1]);
+    return my_ftp(av[1], av[2]);
 }
