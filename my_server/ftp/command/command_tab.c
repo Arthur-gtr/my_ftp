@@ -23,7 +23,8 @@ int test(ftp_t *ftp, int index, char *command)
 
 int quit(ftp_t *ftp, int index, char *command)
 {
-   write(ftp->polling.fds[index].fd , "221 quit\r\n", 9);
+   write(ftp->polling.fds[index].fd , "221 quit\r\n", 10);
+   ftp->polling.fds[index].fd = -1;
    return EXIT_SUCCESS;
 }
 

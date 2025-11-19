@@ -1,14 +1,9 @@
-#include "my_ftp.h"
-#include "command.h"
-
-#include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-#include <arpa/inet.h>
-
+#include "my_ftp.h"
 int size_n_nb(int n, const char *buffer)
 {
     int count = 0;
@@ -59,7 +54,7 @@ int fill_ip(char ip[32], char arg[2048])
     return pos;
 }
 
-int fill_port(char *port, const char *src, int pos)
+int fill_sysport(char *port, const char *src, int pos)
 {
     if (!isdigit(src[pos]))
         return -1;
@@ -79,13 +74,13 @@ int get_port(int pos, const char *src)
     int p1 = 0;
     int p2 = 0;
 
-    pos = fill_port(port1, src, pos);
+    pos = fill_sysport(port1, src, pos);
     if (pos == -1)
         return pos;
     if (src[pos] != ',')
         return -1;
     pos++;
-    pos = fill_port(port2, src, pos);
+    pos = fill_sysport(port2, src, pos);
     if (pos == -1)
         return pos;
     p1 = atoi(port1);
@@ -95,7 +90,7 @@ int get_port(int pos, const char *src)
     return p1 * 256 + p2;
 }
 
-int init_sockadrr(client_t *client, char arg[2048])
+int fill_port(client_t *client, char arg[2048])
 {
     char ip[32] = {0};
     int sysport = 0;
@@ -107,32 +102,21 @@ int init_sockadrr(client_t *client, char arg[2048])
     sysport = get_port(pos, arg);
     if (sysport == -1)
         return -1;
-    client->addr_port.sin_family = AF_INET;
-    client->addr_port.sin_port = htons(sysport);
-    inet_pton(AF_INET, ip, &client->addr_port.sin_addr);
-    return 0;
 }
 
-int port(ftp_t *ftp, int index, char *command)
-{
-    char arg[DATA_BUFFER] = {0};
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
-        return EXIT_SUCCESS;
-    if (get_number_arg(command) > 2){
-        dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
-        return EXIT_SUCCESS;
-    }
-    get_n_arg(command, arg, 2);
-    if (init_sockadrr(&ftp->client[CLIENT_IDX(index)], arg) == -1){
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
-        return EXIT_SUCCESS;
-    }
-    if (ftp->client[CLIENT_IDX(index)].datatransfer_mode == PORT)
-        close(ftp->client[CLIENT_IDX(index)].pasv_fd);
-    ftp->client[CLIENT_IDX(index)].datatransfer_ready = true;
-    ftp->client[CLIENT_IDX(index)].datatransfer_mode = PORT;
-    dprintf(ftp->polling.fds[index].fd, "200 PORT command successful.\r\n");
-    return EXIT_SUCCESS;
+/*
+
+1 9 2 . 1 6 8 . 1 . 2
+                     
+0 1 2 3 4 5 6 7 8 9 10
+
+*/
+void main(void)
+{
+    char ip[32] = {0};
+    char arg[2048] = "192,168,1,2,8,255";
+
+    if (fill_port(NULL, arg) == -1)
+        printf("Error\n");
 }

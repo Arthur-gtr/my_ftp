@@ -52,6 +52,8 @@
 
     #define CDUP_ARG "cwd .."
 
+    #define IP_SZ 32
+
      typedef struct server_s {
         int server_fd;
         struct sockaddr_in addr;/*IPV4 type*/
@@ -112,6 +114,10 @@
         struct sockaddr_in addr_pasv;
         socklen_t addrlen_pasv;
 
+        /*Active mode*/
+        struct sockaddr_in addr_port;
+        socklen_t addrlen_port;
+
         int pasv_fd;
         int socket_fd;
     }client_t;
@@ -157,6 +163,8 @@
     int help(ftp_t *ftp, int index, char *command);
     int dele(ftp_t *ftp, int index, char *command);
     int stor(ftp_t *ftp, int index, char *command);
+    int quit(ftp_t *ftp, int index, char *command);
+    int port(ftp_t *ftp, int index, char *command);
 
     /*FREE*/
     void destroy_ftp(ftp_t *ftp);

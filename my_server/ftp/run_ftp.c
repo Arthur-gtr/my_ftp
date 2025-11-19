@@ -225,7 +225,8 @@ void reset_cmd(ftp_command_t *cmd_info)
 static
 int check_client_event(ftp_t *ftp, int i)
 {
-    int test = 0; 
+    if (ftp->polling.fds[i].fd == -1)
+        return EXIT_SUCCESS;
     if (!(ftp->polling.fds[i].revents & POLLIN))
         return EXIT_SUCCESS;
     if (check_force_deco(&ftp->polling.fds[i]) == EXIT_FAILURE)
@@ -233,12 +234,8 @@ int check_client_event(ftp_t *ftp, int i)
     if (get_data(ftp, i) == EXIT_FAILURE)
         return EXIT_SUCCESS;
     if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true){
-        //printf("Buffer=%s\n", ftp->client[CLIENT_IDX(i)].cmd_info.buffer);
-        if(test = execute(ftp, i) == MALLOC_FAILED){
-            printf("Execute failed\n");
+        if(execute(ftp, i) == MALLOC_FAILED)
             return MALLOC_FAILED;
-        }
-        printf("Not failed cause %d\n", test);
         reset_cmd(&ftp->client[CLIENT_IDX(i)].cmd_info);
     }
     return EXIT_SUCCESS;

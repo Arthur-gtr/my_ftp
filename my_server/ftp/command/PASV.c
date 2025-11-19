@@ -40,11 +40,14 @@ int pasv(ftp_t *ftp, int index, char *command)
     if (is_connected(&ftp->client[CLIENT_IDX(index)], ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (get_number_arg(command) > 1){
+        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
         dprintf(ftp->polling.fds[index].fd, "ftp 501 server cannot accept argument\r\n");
         return EXIT_SUCCESS;
     }
-    if (init_pasv(&ftp->client[CLIENT_IDX(index)]) == EXIT_FAILURE)
+    if (init_pasv(&ftp->client[CLIENT_IDX(index)]) == EXIT_FAILURE){
+        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
         return MALLOC_FAILED;
+    }
     ftp->client[CLIENT_IDX(index)].datatransfer_ready = true;
     ftp->client[CLIENT_IDX(index)].datatransfer_mode = PASV;
     ip = (unsigned char *)&ftp->client[CLIENT_IDX(index)].addr.sin_addr;
