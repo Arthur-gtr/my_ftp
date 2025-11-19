@@ -27,16 +27,17 @@
     #define STOR 12
     #define USER 13
 
-    typedef struct command_s {
-        char *command_name;
-        int size;
-        /*Pour savoir si il faut fork*/
-        bool data_transfer;
-        int nb_argument;
-        int (*funct)(ftp_t *ftp, int index, char *buffer);
-    } command_t;
+typedef struct command_s {
+    char *command_name;
+    int size;
+    /*Pour savoir si il faut fork*/
+    bool data_transfer;
+    int nb_argument;
+    int (*funct)(ftp_t *ftp, int index, char *buffer);
+} command_t;
 
 
-    extern const command_t command_tab[];
-    extern const size_t sz_tab_cmd;
+extern const command_t command_tab[];
+extern const size_t sz_tab_cmd;
+
 #endif /*COMMAND_H*/

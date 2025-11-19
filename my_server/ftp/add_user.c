@@ -37,24 +37,31 @@ void init_ftp_command(ftp_command_t *cmd_info)
     memset(cmd_info->garbage, 0, DATA_BUFFER);
 }
 
+static
 int accept_connection(struct pollfd *poll_fd, int server_fd, client_t *client)
 {
-    poll_fd->fd = accept(server_fd, (struct sockaddr *)&client->addr, &client->addrlen);
+    poll_fd->fd = accept(server_fd,
+        (struct sockaddr *)&client->addr,
+        &client->addrlen);
     if (poll_fd->fd == -1)
         return reterr("Error file descriptor");
     poll_fd->events = POLLIN;
     poll_fd->revents = 0;
-    getsockname(poll_fd->fd, (struct sockaddr *)&client->addr, &client->addrlen);
+    getsockname(poll_fd->fd,
+        (struct sockaddr *)&client->addr,
+        &client->addrlen);
     return 0;
 }
 
+static
 int check_pollfd_size(polling_t *polling)
 {
     struct pollfd *fds = NULL;
 
     if (polling->nfds > (int)polling->alloc_pollfd){
         polling->alloc_pollfd *= 2;
-        fds = realloc(polling->fds, sizeof(struct pollfd) * polling->alloc_pollfd);
+        fds = realloc(polling->fds,
+            sizeof(struct pollfd) * polling->alloc_pollfd);
         if (fds == NULL) {
             free(polling->fds);
             return EXIT_FAILURE;
@@ -64,6 +71,7 @@ int check_pollfd_size(polling_t *polling)
     return EXIT_SUCCESS;
 }
 
+static
 int check_client_size(client_t **client_tab)
 {
     client_t *client = *client_tab;
@@ -82,20 +90,24 @@ int check_client_size(client_t **client_tab)
 }
 
 int add_user(ftp_t *ftp)
-{   
+{
     ftp->client->size++;
     ftp->polling.nfds++;
-    if (check_pollfd_size(&ftp->polling) == EXIT_FAILURE || check_client_size(&ftp->client) == EXIT_FAILURE)
+    if (check_pollfd_size(&ftp->polling) == EXIT_FAILURE
+        || check_client_size(&ftp->client) == EXIT_FAILURE)
         return EXIT_FAILURE;
     ftp->client[ftp->client->size - 1].addrlen = sizeof(struct sockaddr_in);
     ftp->client[ftp->client->size - 1].connection = RESET_FLAG;
-    strncpy(ftp->client[ftp->client->size - 1].wd,"/", PATH_MAX);
+    strncpy(ftp->client[ftp->client->size - 1].wd, "/", PATH_MAX);
     ftp->client[ftp->client->size - 1].datatransfer_mode = 0;
-    ftp->client[ftp->client->size - 1].datatransfer_ready= false;
-    if (accept_connection(&ftp->polling.fds[ftp->client->size], ftp->server.server_fd, &ftp->client[ftp->client->size - 1]) == EXIT_FAILURE)
+    ftp->client[ftp->client->size - 1].datatransfer_ready = false;
+    if (accept_connection(&ftp->polling.fds[ftp->client->size],
+        ftp->server.server_fd,
+        &ftp->client[ftp->client->size - 1]) == EXIT_FAILURE)
         return EXIT_FAILURE;
     write(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n", 17);
-    printf("User add to the queu, IP: %s\n", inet_ntoa(ftp->client[ftp->client->size - 1].addr.sin_addr));
+    printf("User add to the queu, IP: %s\n",
+        inet_ntoa(ftp->client[ftp->client->size - 1].addr.sin_addr));
     init_ftp_command(&ftp->client[CLIENT_IDX(ftp->client->size)].cmd_info);
     return EXIT_SUCCESS;
 }

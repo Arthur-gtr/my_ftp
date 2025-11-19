@@ -14,7 +14,7 @@ SERV = my_server/server.c
 SERV += my_server/init/init_ftp.c
 SERV += my_server/init/init_server.c
 SERV += my_server/init/init_polling.c
-SERV += my_server/init/init_client.c 
+SERV += my_server/init/init_client.c
 
 #UTILS
 SERV += my_server/utils/reterr.c
