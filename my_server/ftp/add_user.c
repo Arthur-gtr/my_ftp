@@ -42,7 +42,7 @@ int accept_connection(struct pollfd *poll_fd, int server_fd, client_t *client)
     poll_fd->fd = accept(server_fd, (struct sockaddr *)&client->addr, &client->addrlen);
     if (poll_fd->fd == -1)
         return reterr("Error file descriptor");
-    poll_fd->events = POLLIN | POLLOUT;
+    poll_fd->events = POLLIN;
     poll_fd->revents = 0;
     getsockname(poll_fd->fd, (struct sockaddr *)&client->addr, &client->addrlen);
     return 0;

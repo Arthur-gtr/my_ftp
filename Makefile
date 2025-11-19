@@ -65,5 +65,4 @@ clean:
 fclean: clean
 		rm -rf $(NAME_S)
 
-
 re: fclean all

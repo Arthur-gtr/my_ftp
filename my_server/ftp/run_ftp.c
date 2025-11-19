@@ -54,9 +54,11 @@ int get_data(ftp_t *ftp, int index)
 static
 int check_server_event(ftp_t *ftp)
 {
-    if (ftp->polling.fds[FDS_SERVER].revents & POLLIN)
+    if (ftp->polling.fds[FDS_SERVER].revents & POLLIN){
+        ftp->polling.fds[FDS_SERVER].revents = RESET_FLAG;
         if (add_user(ftp) == EXIT_FAILURE)
             return reterr("Malloc failed.");
+    }
     return EXIT_SUCCESS;
 }
 
@@ -229,6 +231,8 @@ int check_client_event(ftp_t *ftp, int i)
         return EXIT_SUCCESS;
     if (!(ftp->polling.fds[i].revents & POLLIN))
         return EXIT_SUCCESS;
+    //ftp->polling.fds[i].revents = RESET_FLAG;
+    printf("Pollin\n");
     if (check_force_deco(&ftp->polling.fds[i]) == EXIT_FAILURE)
         return EXIT_SUCCESS;
     if (get_data(ftp, i) == EXIT_FAILURE)
