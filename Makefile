@@ -32,19 +32,19 @@ SERV += my_server/ftp/command/parsing_command.c
 SERV += my_server/ftp/command/handle_co.c
 
 #COMMAND
-SERV += my_server/ftp/command/NOOP.c
-SERV += my_server/ftp/command/USER.c
-SERV += my_server/ftp/command/PWD.c
-SERV += my_server/ftp/command/PASV.c
-SERV += my_server/ftp/command/LIST.c
-SERV += my_server/ftp/command/CWD.c
-SERV += my_server/ftp/command/CDUP.c
-SERV += my_server/ftp/command/RETR.c
-SERV += my_server/ftp/command/PASS.c
-SERV += my_server/ftp/command/HELP.c
-SERV += my_server/ftp/command/DELE.c
-SERV += my_server/ftp/command/STOR.c
-SERV += my_server/ftp/command/PORT.c
+SERV += my_server/ftp/command/noop.c
+SERV += my_server/ftp/command/user.c
+SERV += my_server/ftp/command/pwd.c
+SERV += my_server/ftp/command/pasv.c
+SERV += my_server/ftp/command/list.c
+SERV += my_server/ftp/command/cwd.c
+SERV += my_server/ftp/command/cdup.c
+SERV += my_server/ftp/command/retr.c
+SERV += my_server/ftp/command/pass.c
+SERV += my_server/ftp/command/help.c
+SERV += my_server/ftp/command/dele.c
+SERV += my_server/ftp/command/stor.c
+SERV += my_server/ftp/command/port.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c
