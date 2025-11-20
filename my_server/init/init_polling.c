@@ -15,7 +15,7 @@
 
 int init_polling(polling_t *polling, int fd_server)
 {
-    polling->fds = malloc(sizeof(struct pollfd) * 1);
+    polling->fds = malloc(sizeof(struct pollfd));
     if (polling->fds == NULL)
         return reterr("Malloc failed");
     polling->nfds = 1;

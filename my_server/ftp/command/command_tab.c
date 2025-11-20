@@ -29,13 +29,6 @@ int test(ftp_t *ftp, int index, char *command)
     return EXIT_SUCCESS;
 }
 
-int quit(ftp_t *ftp, int index, char *command)
-{
-    write(ftp->polling.fds[index].fd, "221 quit\r\n", 10);
-    ftp->polling.fds[index].fd = -1;
-    return EXIT_SUCCESS;
-}
-
 int command_parsing(ftp_t *ftp, int index)
 {
     int status = -2;

@@ -37,6 +37,7 @@ int check_server_event(ftp_t *ftp)
 int check_force_deco(struct pollfd *poll_fd)
 {
     if (poll_fd->revents & (POLLHUP | POLLERR | POLLNVAL)){
+            close(poll_fd->fd);
             poll_fd->fd = -1;
             poll_fd->revents = 0;
             poll_fd->events = 0;

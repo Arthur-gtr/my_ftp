@@ -32,10 +32,12 @@ int accept_out_co(client_t *client, int fd)
 static
 int accept_in_co(client_t *client, int fd)
 {
+    
     client->datatransfer_mode = RESET_FLAG;
     client->socket_fd = accept(client->pasv_fd,
         (struct sockaddr *)&client->addr,
         &client->addrlen);
+    close(client->pasv_fd);
     if (client->socket_fd == -1){
         dprintf(fd, "425 Can't open data connection");
         return MALLOC_FAILED;

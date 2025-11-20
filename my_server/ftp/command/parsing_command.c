@@ -60,6 +60,5 @@ int get_n_arg(const char *buffer, char *dest, int n)
         dest[count] = buffer[i];
         count++;
     }
-    printf("Gzt %d arg: %s\n", n, dest);
     return count;
 }

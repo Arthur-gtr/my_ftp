@@ -61,6 +61,8 @@ void give_list_to_the_client(int fd, int control_fd,
         run_ls(fd, serv, client_wd);
         dprintf(control_fd, "226 Closing data connection.\r\n");
         close(fd);
+        close(control_fd);
+        close(serv->server_fd);
         exit(0);
     }
     close(fd);

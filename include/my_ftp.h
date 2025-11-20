@@ -158,6 +158,7 @@ int dele(ftp_t *ftp, int index, char *command);
 int stor(ftp_t *ftp, int index, char *command);
 int quit(ftp_t *ftp, int index, char *command);
 int port(ftp_t *ftp, int index, char *command);
+int quit(ftp_t *ftp, int index, char *command);
 
 /*FREE*/
 void destroy_ftp(ftp_t *ftp);

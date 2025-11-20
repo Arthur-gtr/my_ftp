@@ -49,6 +49,7 @@ SERV += my_server/ftp/command/help.c
 SERV += my_server/ftp/command/dele.c
 SERV += my_server/ftp/command/stor.c
 SERV += my_server/ftp/command/port.c
+SERV += my_server/ftp/command/quit.c
 
 #FREE
 SERV += my_server/free/destroy_ftp.c
