@@ -117,15 +117,8 @@ typedef struct polling_s {
     struct pollfd *fds;
 }polling_t;
 
-typedef struct gui_client_s {
-    struct sockaddr_in addr;
-    socklen_t addrlen;
-    int fd;
-} gui_client_t;
-
 typedef struct ftp_s {
     server_t server;
-    client_t *client;
     client_array_t client_tab;
     polling_t polling;
     int running;
