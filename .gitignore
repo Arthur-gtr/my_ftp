@@ -10,3 +10,7 @@ myftp
 
 task.md
 *.o
+
+#log
+
+log
