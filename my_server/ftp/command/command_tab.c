@@ -33,14 +33,14 @@ int command_parsing(ftp_t *ftp, int index)
 {
     int status = -2;
 
-    printf("Command::%s\n", ftp->client[CLIENT_IDX(index)].cmd_info.command);
+    printf("Command::%s\n", ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.command);
     for (size_t i = 0; i != sz_tab_cmd; i++){
         if (strncmp(command_tab[i].command_name,
-            ftp->client[CLIENT_IDX(index)].cmd_info.command,
+            ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.command,
             command_tab[i].size) == 0){
             status = command_tab[i].funct(ftp,
                 index,
-                ftp->client[CLIENT_IDX(index)].cmd_info.command
+                ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.command
             );
         }
         if (status == MALLOC_FAILED || status == EXIT_SUCCESS){

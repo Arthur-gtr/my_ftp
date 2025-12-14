@@ -20,7 +20,7 @@ bool is_connected(client_t *client, int fd)
 
 int pwd(ftp_t *ftp, int index, char *command)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (get_number_arg(command) > 1){
@@ -28,6 +28,6 @@ int pwd(ftp_t *ftp, int index, char *command)
         return EXIT_SUCCESS;
     }
     dprintf(ftp->polling.fds[index].fd,
-        "257 \"%s\"\r\n", ftp->client[CLIENT_IDX(index)].wd);
+        "257 \"%s\"\r\n", ftp->client_tab.client[CLIENT_IDX(index)].wd);
     return EXIT_SUCCESS;
 }

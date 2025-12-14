@@ -20,10 +20,10 @@ int init_ftp(ftp_t *ftp, char *port, char *path)
     ftp->running = RUNNING;
     if (init_server(&ftp->server, atoi(port), path) == EXIT_FAILURE)
         return EXIT_FAILURE;
-    ftp->client = malloc(sizeof(client_t));
-    if (ftp->client == NULL)
+    ftp->client_tab.client = malloc(sizeof(client_t));
+    if (ftp->client_tab.client == NULL)
         return EXIT_FAILURE;
-    init_client(ftp->client);
+    init_client(&ftp->client_tab);
     if (init_polling(&ftp->polling, ftp->server.server_fd) == EXIT_FAILURE)
         return EXIT_FAILURE;
     return EXIT_SUCCESS;

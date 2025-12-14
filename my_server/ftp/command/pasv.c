@@ -53,11 +53,11 @@ int init_pasv(client_t *client)
 
 int check_pasvarg(ftp_t *ftp, int index, char *command)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_FAILURE;
     if (get_number_arg(command) > 1){
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
+        ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = false;
         dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_FAILURE;
     }
@@ -71,14 +71,14 @@ int pasv(ftp_t *ftp, int index, char *command)
 
     if (check_pasvarg(ftp, index, command) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (init_pasv(&ftp->client[CLIENT_IDX(index)]) == EXIT_FAILURE){
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
+    if (init_pasv(&ftp->client_tab.client[CLIENT_IDX(index)]) == EXIT_FAILURE){
+        ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = false;
         return MALLOC_FAILED;
     }
-    ftp->client[CLIENT_IDX(index)].datatransfer_ready = true;
-    ftp->client[CLIENT_IDX(index)].datatransfer_mode = PASV;
-    ip = (unsigned char *)&ftp->client[CLIENT_IDX(index)].addr.sin_addr;
-    port = ntohs(ftp->client[CLIENT_IDX(index)].addr_pasv.sin_port);
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = true;
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode = PASV;
+    ip = (unsigned char *)&ftp->client_tab.client[CLIENT_IDX(index)].addr.sin_addr;
+    port = ntohs(ftp->client_tab.client[CLIENT_IDX(index)].addr_pasv.sin_port);
     dprintf(ftp->polling.fds[index].fd,
         "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d).\r\n",
         ip[0], ip[1], ip[2], ip[3], port / 256, port % 256);

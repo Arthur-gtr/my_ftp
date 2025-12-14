@@ -93,7 +93,7 @@ int refresh_path(char path[PATH_MAX],
 static
 int init_ls(ftp_t *ftp, int nb_arg, int index)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_FAILURE;
     if (nb_arg > 2){
@@ -110,10 +110,10 @@ int list(ftp_t *ftp, int index, char *command)
     char path[PATH_MAX] = {0};
     char new_path[PATH_MAX] = {0};
 
-    strncpy(path, ftp->client[CLIENT_IDX(index)].wd, PATH_MAX);
+    strncpy(path, ftp->client_tab.client[CLIENT_IDX(index)].wd, PATH_MAX);
     if (init_ls(ftp, nb_arg, index) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    status = accept_co(&ftp->client[CLIENT_IDX(index)],
+    status = accept_co(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd);
     if (status == DATA_NOT_READY || status == EXIT_FAILURE)
         return status;
@@ -122,7 +122,7 @@ int list(ftp_t *ftp, int index, char *command)
         refresh_path(path, new_path, &ftp->server);
     }
     dprintf(ftp->polling.fds[index].fd, "150 Opening data connection.\r\n");
-    give_list_to_the_client(ftp->client[CLIENT_IDX(index)].socket_fd,
+    give_list_to_the_client(ftp->client_tab.client[CLIENT_IDX(index)].socket_fd,
         ftp->polling.fds[index].fd, &ftp->server, path);
     return EXIT_SUCCESS;
 }

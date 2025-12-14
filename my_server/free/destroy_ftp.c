@@ -41,5 +41,5 @@ void destroy_ftp(ftp_t *ftp)
 {
     destroy_server(&ftp->server);
     destroy_polling(&ftp->polling);
-    destroy_client(ftp->client);
+    destroy_client(ftp->client_tab.client);
 }

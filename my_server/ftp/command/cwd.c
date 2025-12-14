@@ -28,7 +28,7 @@ int reset_cwd(char *new_wc, ftp_t *ftp, int index)
 {
     memset(new_wc, 0, strlen(new_wc));
     strncpy(new_wc, ftp->server.serv_wd, PATH_MAX);
-    strncat(new_wc, ftp->client[CLIENT_IDX(index)].wd,
+    strncat(new_wc, ftp->client_tab.client[CLIENT_IDX(index)].wd,
         PATH_MAX - strlen(new_wc));
     chdir(new_wc);
     dprintf(ftp->polling.fds[index].fd, "550 Failed to change directory.\r\n");
@@ -40,14 +40,14 @@ void change_cwd(ftp_t *ftp, int index, char *new_wc)
 {
     int count = 0;
 
-    memset(ftp->client[CLIENT_IDX(index)].wd, 0, PATH_MAX);
+    memset(ftp->client_tab.client[CLIENT_IDX(index)].wd, 0, PATH_MAX);
     for (int i = ftp->server.size_wd; new_wc[i] != '\0'; i++){
-        ftp->client[CLIENT_IDX(index)].wd[count] = new_wc[i];
+        ftp->client_tab.client[CLIENT_IDX(index)].wd[count] = new_wc[i];
         count++;
     }
-    ftp->client[CLIENT_IDX(index)].wd[count] = '\0';
-    if (IS_EMPTY(*ftp->client[CLIENT_IDX(index)].wd))
-        *ftp->client[CLIENT_IDX(index)].wd = '/';
+    ftp->client_tab.client[CLIENT_IDX(index)].wd[count] = '\0';
+    if (IS_EMPTY(*ftp->client_tab.client[CLIENT_IDX(index)].wd))
+        *ftp->client_tab.client[CLIENT_IDX(index)].wd = '/';
     dprintf(ftp->polling.fds[index].fd,
         "250 Directory successfully changed.\r\n");
 }
@@ -55,7 +55,7 @@ void change_cwd(ftp_t *ftp, int index, char *new_wc)
 static
 int init_cwd(ftp_t *ftp, char *command, int index)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_FAILURE;
     if (get_number_arg(command) > 2){

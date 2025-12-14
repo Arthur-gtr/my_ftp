@@ -36,15 +36,15 @@ int user(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
-    ftp->client[CLIENT_IDX(index)].connection = RESET_FLAG;
+    ftp->client_tab.client[CLIENT_IDX(index)].connection = RESET_FLAG;
     command += skip_garbage("\t ", command, command_tab[USER].size);
     if (strlen(command) > LIMIT_NAME){
-        ftp->client[CLIENT_IDX(index)].connection = 0;
+        ftp->client_tab.client[CLIENT_IDX(index)].connection = 0;
         dprintf(ftp->polling.fds[index].fd, "501 Username too long\r\n");
         return EXIT_SUCCESS;
     }
     if (strncmp(command, "Anonymous", 9) == 0){
-        ftp->client[CLIENT_IDX(index)].connection |= USER_C;
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= USER_C;
         dprintf(ftp->polling.fds[index].fd, "331 Username Accepted\r\n");
         return EXIT_SUCCESS;
     }

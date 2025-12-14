@@ -16,7 +16,7 @@ int dele(ftp_t *ftp, int index, char *command)
 {
     char path[DATA_BUFFER] = {0};
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (get_number_arg(command) > 2){

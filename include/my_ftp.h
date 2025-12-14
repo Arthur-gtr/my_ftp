@@ -77,10 +77,9 @@ typedef struct ftp_command_s {
     char garbage[DATA_BUFFER];
 } ftp_command_t;
 
+
+
 typedef struct client_s {
-    /*Tab struct*/
-    size_t alloc_client;
-    size_t size;
     /*IPV4 type*/
     struct sockaddr_in addr;
     socklen_t addrlen;
@@ -106,6 +105,14 @@ typedef struct client_s {
     int socket_fd;
 }client_t;
 
+typedef struct client_array_s
+{
+    client_t *client;
+    size_t size;
+    size_t alloc;
+} client_array_t;
+
+
 typedef struct polling_s {
     size_t alloc_pollfd;
     int nfds;
@@ -115,6 +122,7 @@ typedef struct polling_s {
 typedef struct ftp_s {
     server_t server;
     client_t *client;
+    client_array_t client_tab;
     polling_t polling;
     int running;
 }ftp_t;

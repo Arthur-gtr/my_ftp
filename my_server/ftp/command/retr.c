@@ -55,7 +55,7 @@ int run_retr(char path[PATH_MAX], int control_socket, int socket_fd)
 
 int init_retr(ftp_t *ftp, int index, int nb_arg)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_FAILURE;
     if (nb_arg > 2){
@@ -79,12 +79,12 @@ int retr(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, "550 Failed to open file.\r\n");
         return EXIT_SUCCESS;
     }
-    status = accept_co(&ftp->client[CLIENT_IDX(index)],
+    status = accept_co(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd);
     if (status == DATA_NOT_READY || status == EXIT_FAILURE)
         return status;
     run_retr(path, ftp->polling.fds[index].fd,
-            ftp->client[CLIENT_IDX(index)].socket_fd);
-    ftp->client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
+            ftp->client_tab.client[CLIENT_IDX(index)].socket_fd);
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
     return EXIT_SUCCESS;
 }

@@ -125,12 +125,12 @@ int init_sockadrr(client_t *client, char arg[2048])
 
 int init_port(ftp_t *ftp, int index, char *command)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_FAILURE;
     if (get_number_arg(command) > 2){
         dprintf(ftp->polling.fds[index].fd, ARG_501);
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
+        ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = false;
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -143,14 +143,14 @@ int port(ftp_t *ftp, int index, char *command)
     if (init_port(ftp, index, command) == EXIT_FAILURE)
         return EXIT_SUCCESS;
     get_n_arg(command, arg, 2);
-    if (init_sockadrr(&ftp->client[CLIENT_IDX(index)], arg) == -1){
-        ftp->client[CLIENT_IDX(index)].datatransfer_ready = false;
+    if (init_sockadrr(&ftp->client_tab.client[CLIENT_IDX(index)], arg) == -1){
+        ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = false;
         return EXIT_SUCCESS;
     }
-    if (ftp->client[CLIENT_IDX(index)].datatransfer_mode == PORT)
-        close(ftp->client[CLIENT_IDX(index)].pasv_fd);
-    ftp->client[CLIENT_IDX(index)].datatransfer_ready = true;
-    ftp->client[CLIENT_IDX(index)].datatransfer_mode = PORT;
+    if (ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode == PORT)
+        close(ftp->client_tab.client[CLIENT_IDX(index)].pasv_fd);
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = true;
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode = PORT;
     dprintf(ftp->polling.fds[index].fd, "200 PORT command successful.\r\n");
     return EXIT_SUCCESS;
 }

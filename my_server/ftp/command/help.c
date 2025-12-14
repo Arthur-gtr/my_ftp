@@ -49,7 +49,7 @@ int help(ftp_t *ftp, int index, char *command)
     int nb_arg = get_number_arg(command);
     char cmd[5] = {0};
 
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_SUCCESS;
     if (nb_arg > 2){

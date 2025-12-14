@@ -14,6 +14,6 @@
 int init_ftp(ftp_t *ftp, char *port, char *path);
 int init_polling(polling_t *polling, int fd_server);
 int init_server(server_t *serv, int port, char *path);
-int init_client(client_t *client);
+int init_client(client_array_t *client_tab);
 
 #endif /*INIT_H*/

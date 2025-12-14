@@ -14,9 +14,9 @@
 
 #include "my_ftp.h"
 
-int init_client(client_t *client)
+int init_client(client_array_t *client_tab)
 {
-    client->size = 0;
-    client->alloc_client = 1;
+    client_tab->size = 0;
+    client_tab->alloc = 1;
     return EXIT_SUCCESS;
 }

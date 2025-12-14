@@ -77,7 +77,7 @@ int getnfilename(char *dest, const char *src, int n)
 static
 int init_stor(ftp_t *ftp, int index, int nb_arg)
 {
-    if (is_connected(&ftp->client[CLIENT_IDX(index)],
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd) == false)
         return EXIT_FAILURE;
     if (nb_arg > 2){
@@ -107,15 +107,15 @@ int stor(ftp_t *ftp, int index, char *command)
 
     if (init_stor(ftp, index, nb_arg) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    strncpy(path, ftp->client[CLIENT_IDX(index)].wd, PATH_MAX);
+    strncpy(path, ftp->client_tab.client[CLIENT_IDX(index)].wd, PATH_MAX);
     get_n_arg(command, new_path, 2);
     change_path(new_path, file_name, path, &ftp->server);
-    status = accept_co(&ftp->client[CLIENT_IDX(index)],
+    status = accept_co(&ftp->client_tab.client[CLIENT_IDX(index)],
         ftp->polling.fds[index].fd);
     if (status == DATA_NOT_READY || status == EXIT_FAILURE)
         return status;
     run_stor(path, ftp->polling.fds[index].fd,
-        ftp->client[CLIENT_IDX(index)].socket_fd);
-    ftp->client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
+        ftp->client_tab.client[CLIENT_IDX(index)].socket_fd);
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
     return EXIT_SUCCESS;
 }

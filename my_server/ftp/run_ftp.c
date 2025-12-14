@@ -81,19 +81,19 @@ void fill_garbage(ftp_command_t *cmd_info)
 static
 int execute(ftp_t *ftp, int client)
 {
-    for (int i = 0; ftp->client[CLIENT_IDX(client)].cmd_info.nb_crlf != i;
+    for (int i = 0; ftp->client_tab.client[CLIENT_IDX(client)].cmd_info.nb_crlf != i;
         i++){
-        if (fill_current_cmd(&ftp->client[CLIENT_IDX(client)].cmd_info)
+        if (fill_current_cmd(&ftp->client_tab.client[CLIENT_IDX(client)].cmd_info)
             == EXIT_FAILURE)
             break;
         if (command_parsing(ftp, client) == MALLOC_FAILED)
             return MALLOC_FAILED;
-        memset(ftp->client[CLIENT_IDX(client)].cmd_info.command,
+        memset(ftp->client_tab.client[CLIENT_IDX(client)].cmd_info.command,
             0, CMD_BUFFER);
     }
-    if (ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status == true){
-        fill_garbage(&ftp->client[CLIENT_IDX(client)].cmd_info);
-        ftp->client[CLIENT_IDX(client)].cmd_info.garbage_status = false;
+    if (ftp->client_tab.client[CLIENT_IDX(client)].cmd_info.garbage_status == true){
+        fill_garbage(&ftp->client_tab.client[CLIENT_IDX(client)].cmd_info);
+        ftp->client_tab.client[CLIENT_IDX(client)].cmd_info.garbage_status = false;
     }
     return true;
 }
@@ -122,10 +122,10 @@ int check_client_event(ftp_t *ftp, int i)
         return EXIT_SUCCESS;
     if (get_data(ftp, i) == EXIT_FAILURE)
         return EXIT_SUCCESS;
-    if (command_detected(&ftp->client[CLIENT_IDX(i)].cmd_info) == true){
+    if (command_detected(&ftp->client_tab.client[CLIENT_IDX(i)].cmd_info) == true){
         if (execute(ftp, i) == MALLOC_FAILED)
             return MALLOC_FAILED;
-        reset_cmd(&ftp->client[CLIENT_IDX(i)].cmd_info);
+        reset_cmd(&ftp->client_tab.client[CLIENT_IDX(i)].cmd_info);
     }
     return EXIT_SUCCESS;
 }

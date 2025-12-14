@@ -33,13 +33,13 @@ int password(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
-    if (!(USER_C & ftp->client[CLIENT_IDX(index)].connection)){
+    if (!(USER_C & ftp->client_tab.client[CLIENT_IDX(index)].connection)){
         dprintf(ftp->polling.fds[index].fd, "530 Username don't set...\r\n");
         return EXIT_SUCCESS;
     }
     if (paswd_valid(command) == EXIT_SUCCESS){
-        ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
-        ftp->client[CLIENT_IDX(index)].connection |= CONNECTED;
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= PASSW_C;
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= CONNECTED;
         dprintf(ftp->polling.fds[index].fd,
             "230 Password OK: Welcome aboard captain\r\n");
         return EXIT_SUCCESS;
