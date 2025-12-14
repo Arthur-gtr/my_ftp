@@ -8,10 +8,6 @@
 NAME_S = myftp
 
 SERV = my_server/server.c
-SERV += get_data.c
-SERV += check_event.c
-SERV += is_valid.c
-SERV += fill_current_cmd.c
 
 #INIT
 
@@ -24,6 +20,10 @@ SERV += my_server/init/init_client.c
 SERV += my_server/utils/reterr.c
 SERV += my_server/utils/my_str_to_word_array.c
 SERV += my_server/utils/is_file.c
+SERV += my_server/utils/get_data.c
+SERV += my_server/utils/check_event.c
+SERV += my_server/utils/is_valid.c
+SERV += my_server/utils/fill_current_cmd.c
 
 #FTP
 SERV += my_server/ftp/run_ftp.c
