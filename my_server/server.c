@@ -41,7 +41,7 @@ int my_ftp(char *port, char *path)
 
 int main(int ac, char **av)
 {
-    if (ac < 3)
+    if (ac < 3 || ac > 3)
         return 84;
     return my_ftp(av[1], av[2]);
 }
