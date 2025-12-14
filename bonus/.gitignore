@@ -1,0 +1,12 @@
+
+#Executable
+
+a.out
+client
+server
+myftp
+
+#File
+
+task.md
+*.o

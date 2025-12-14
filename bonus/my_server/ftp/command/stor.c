@@ -1,0 +1,120 @@
+/*
+** EPITECH PROJECT, 2025
+** my_ftp
+** File description:
+** RETR
+*/
+
+#include "my_ftp.h"
+#include "command.h"
+#include "utils.h"
+
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/stat.h>
+
+int get_from_client(char path[PATH_MAX], int socket_fd)
+{
+    int status = 1;
+    int fd = open(path, O_WRONLY | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+    char buffer[CMD_BUFFER];
+
+    if (fd == -1)
+        return EXIT_FAILURE;
+    while (status > 0){
+        status = read(socket_fd, buffer, CMD_BUFFER);
+        if (status == -1)
+            return EXIT_FAILURE;
+        write(fd, buffer, status);
+    }
+    return EXIT_SUCCESS;
+}
+
+int run_stor(char path[PATH_MAX], int control_socket, int socket_fd)
+{
+    pid_t p;
+
+    p = fork();
+    if (p < 0) {
+        perror("fork fail");
+        exit(1);
+    }
+    if (p == 0){
+        get_from_client(path, socket_fd);
+        close(socket_fd);
+        exit(0);
+    }
+    dprintf(control_socket, "226 Closing data connection.\r\n");
+    close(socket_fd);
+    return EXIT_SUCCESS;
+}
+
+int getnfilename(char *dest, const char *src, int n)
+{
+    int count = -1;
+    int size_src = strlen(src) - 1;
+
+    for (int i = size_src; src[i] != '\0' && src[i] != '/'; i--){
+        count++;
+    }
+    if (count == -1)
+        return 1;
+    for (int i = size_src; i != 0; i--){
+        if (src[i] == '/' || n == 0)
+            return 1;
+        dest[count] = src[i];
+        count--;
+        n--;
+    }
+    return 0;
+}
+
+static
+int init_stor(ftp_t *ftp, int index, int nb_arg)
+{
+    if (is_connected(&ftp->client_tab.client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd) == false)
+        return EXIT_FAILURE;
+    if (nb_arg > 2){
+        dprintf(ftp->polling.fds[index].fd, ARG_501);
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+static
+int change_path(char new_path[PATH_MAX],
+    char file_name[256], char path[PATH_MAX], server_t *server)
+{
+    if (*new_path == '/')
+        getnfilename(file_name, new_path, 256);
+    refresh_path(path, (*new_path == '/') ? file_name : new_path, server);
+    return 0;
+}
+
+int stor(ftp_t *ftp, int index, char *command)
+{
+    int status = 0;
+    int nb_arg = get_number_arg(command);
+    char path[PATH_MAX] = {0};
+    char new_path[PATH_MAX] = {0};
+    char file_name[256] = {0};
+
+    if (init_stor(ftp, index, nb_arg) == EXIT_FAILURE)
+        return EXIT_SUCCESS;
+    strncpy(path, ftp->client_tab.client[CLIENT_IDX(index)].wd, PATH_MAX);
+    get_n_arg(command, new_path, 2);
+    change_path(new_path, file_name, path, &ftp->server);
+    status = accept_co(&ftp->client_tab.client[CLIENT_IDX(index)],
+        ftp->polling.fds[index].fd);
+    if (status == DATA_NOT_READY || status == EXIT_FAILURE)
+        return status;
+    run_stor(path, ftp->polling.fds[index].fd,
+        ftp->client_tab.client[CLIENT_IDX(index)].socket_fd);
+    ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode = RESET_FLAG;
+    return EXIT_SUCCESS;
+}
