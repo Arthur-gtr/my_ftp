@@ -23,15 +23,13 @@ void destroy_server(server_t *server)
 
 void destroy_polling(polling_t *polling)
 {
-    printf("nfds; %d\n", polling->nfds);
-    for (int i = CLIENT_ID_MIN; i != polling->nfds; i++){
-        printf("Free nelement:%d\n", i);
-        if (polling->fds[i].fd != -1){
-            printf("Poll fds[i]: %d\n", polling->fds[i].fd);
+    if (polling->fds == NULL)
+        return;
+    for (int i = CLIENT_ID_MIN; i != polling->nfds; i++)
+        if (polling->fds[i].fd != -1)
             close(polling->fds[i].fd);
-        }
-    }
     free(polling->fds);
+    polling->fds = NULL;
 }
 
 void destroy_client(client_t *client)

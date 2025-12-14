@@ -40,15 +40,15 @@ int user(ftp_t *ftp, int index, char *command)
     command += skip_garbage("\t ", command, command_tab[USER].size);
     if (strlen(command) > LIMIT_NAME){
         ftp->client[CLIENT_IDX(index)].connection = 0;
-        write(ftp->polling.fds[index].fd, "501 Username too long\r\n", 23);
+        dprintf(ftp->polling.fds[index].fd, "501 Username too long\r\n");
         return EXIT_SUCCESS;
     }
     if (strncmp(command, "Anonymous", 9) == 0){
         ftp->client[CLIENT_IDX(index)].connection |= USER_C;
-        write(ftp->polling.fds[index].fd, "331 Username Accepted\r\n", 23);
+        dprintf(ftp->polling.fds[index].fd, "331 Username Accepted\r\n");
         return EXIT_SUCCESS;
     }
     printf("Failed USER\n");
-    write(ftp->polling.fds[index].fd, "530 Uknowing name...\r\n", 23);
+    dprintf(ftp->polling.fds[index].fd, "530 Uknowing name...\r\n");
     return EXIT_SUCCESS;
 }

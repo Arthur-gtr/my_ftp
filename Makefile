@@ -56,7 +56,7 @@ SERV += my_server/free/destroy_ftp.c
 
 OB_S = $(SERV:.c=.o)
 
-CFLAGS = -Wall -Wextra -Iinclude -g
+CFLAGS = -Wall -Wextra -Iinclude -g -fanalyzer
 
 LDFLAG = -g
 

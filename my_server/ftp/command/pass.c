@@ -34,17 +34,17 @@ int password(ftp_t *ftp, int index, char *command)
         return EXIT_SUCCESS;
     }
     if (!(USER_C & ftp->client[CLIENT_IDX(index)].connection)){
-        write(ftp->polling.fds[index].fd, "530 Username don't set...\r\n", 27);
+        dprintf(ftp->polling.fds[index].fd, "530 Username don't set...\r\n");
         return EXIT_SUCCESS;
     }
     if (paswd_valid(command) == EXIT_SUCCESS){
         ftp->client[CLIENT_IDX(index)].connection |= PASSW_C;
         ftp->client[CLIENT_IDX(index)].connection |= CONNECTED;
-        write(ftp->polling.fds[index].fd,
-            "230 Password OK: Welcome aboard captain\r\n", 41);
+        dprintf(ftp->polling.fds[index].fd,
+            "230 Password OK: Welcome aboard captain\r\n");
         return EXIT_SUCCESS;
     }
-    write(ftp->polling.fds[index].fd,
-        "501 Password error unvalid character...\r\n", 27);
+    dprintf(ftp->polling.fds[index].fd,
+        "501 Password error unvalid character...\r\n");
     return EXIT_SUCCESS;
 }

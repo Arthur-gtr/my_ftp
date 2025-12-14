@@ -17,31 +17,38 @@
 static
 int accept_out_co(client_t *client, int fd)
 {
+    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+
     client->datatransfer_mode = RESET_FLAG;
-    client->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (client->socket_fd < 0)
+    if (socket_fd < 0)
         return EXIT_FAILURE;
-    if (connect(client->socket_fd,
+    if (connect(socket_fd,
         (struct sockaddr *)&client->addr_port,
         sizeof(client->addr_port)) < 0) {
+        close(socket_fd);
         dprintf(fd, "425 Can't open data connection");
     }
+    client->socket_fd = socket_fd;
     return 0;
 }
 
 static
 int accept_in_co(client_t *client, int fd)
 {
-    
-    client->datatransfer_mode = RESET_FLAG;
-    client->socket_fd = accept(client->pasv_fd,
+    int pasv_fd = client->pasv_fd;
+    int socket_fd = accept(client->pasv_fd,
         (struct sockaddr *)&client->addr,
         &client->addrlen);
-    close(client->pasv_fd);
-    if (client->socket_fd == -1){
+
+    client->pasv_fd = -1;
+    close(pasv_fd);
+    if (socket_fd == -1){
         dprintf(fd, "425 Can't open data connection");
+        close(socket_fd);
         return MALLOC_FAILED;
     }
+    client->datatransfer_mode = RESET_FLAG;
+    client->socket_fd = socket_fd;
     return EXIT_SUCCESS;
 }
 

@@ -62,8 +62,6 @@ typedef struct server_s {
     size_t size_wd;
 }server_t;
 
-void print_visible(const char *s);
-
 typedef struct ftp_command_s {
     char buffer[DATA_BUFFER];
     int nb_crlf;
@@ -144,7 +142,6 @@ int fill_current_cmd(ftp_command_t *cmd_info);
 int password(ftp_t *ftp, int index, char *command);
 int pwd(ftp_t *ftp, int index, char *command);
 int pasv(ftp_t *ftp, int index, char *command);
-int syst(ftp_t *ftp, int index, char *command);
 int user(ftp_t *ftp, int index, char *command);
 int password(ftp_t *ftp, int index, char *command);
 int test(ftp_t *ftp, int index, char *command);
@@ -162,6 +159,7 @@ int quit(ftp_t *ftp, int index, char *command);
 
 /*FREE*/
 void destroy_ftp(ftp_t *ftp);
+void destroy_polling(polling_t *polling);
 
     #define ARG_501 "ftp 501 server cannot accept argument\r\n"
 

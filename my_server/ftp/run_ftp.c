@@ -23,6 +23,11 @@
 
 #include <time.h>
 
+#include <signal.h>
+#include <errno.h>
+
+volatile sig_atomic_t running[1];
+
 /*Return the number of patern find in a str*/
 static
 int find_pattern_in_str(char *str, char *pattern)
@@ -136,31 +141,22 @@ int check_event(ftp_t *ftp)
     return EXIT_SUCCESS;
 }
 
-#include <signal.h>
-#include <errno.h>
-
-volatile sig_atomic_t running = RUNNING;
-
 void stop_ftp(int sig)
 {
     (void)sig;
-    running = 1;
+    (*running) = CLOSE;
 }
-
 
 int run_ftp(ftp_t *ftp)
 {
     int status;
-    
+
+    (*running) = RUNNING;
     signal(SIGINT, stop_ftp);
-    while (running == RUNNING){
+    while ((*running) == RUNNING){
         status = poll(ftp->polling.fds, ftp->polling.nfds, TIMEOUT);
-        if (errno == EINTR)
+        if (errno == EINTR || status == 0)
             continue;
-        if (status == 0){
-            printf("Timeout\n");
-            continue;
-        }
         if (status < 0)
             return reterr("Poll Error");
         if (check_event(ftp) == EXIT_FAILURE)

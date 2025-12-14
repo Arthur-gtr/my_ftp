@@ -63,7 +63,7 @@ int check_pollfd_size(polling_t *polling)
         fds = realloc(polling->fds,
             sizeof(struct pollfd) * polling->alloc_pollfd);
         if (fds == NULL) {
-            free(polling->fds);
+            destroy_polling(polling);
             return EXIT_FAILURE;
         }
         polling->fds = fds;
@@ -105,7 +105,7 @@ int add_user(ftp_t *ftp)
         ftp->server.server_fd,
         &ftp->client[ftp->client->size - 1]) == EXIT_FAILURE)
         return EXIT_FAILURE;
-    write(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n", 17);
+    dprintf(ftp->polling.fds[ftp->client->size].fd, "220 Connection:\r\n");
     printf("User add to the queu, IP: %s\n",
         inet_ntoa(ftp->client[ftp->client->size - 1].addr.sin_addr));
     init_ftp_command(&ftp->client[CLIENT_IDX(ftp->client->size)].cmd_info);

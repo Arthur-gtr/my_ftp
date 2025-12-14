@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-int type(ftp_t *ftp, int index, char *command)
+int type(ftp_t *ftp, int index, __attribute_maybe_unused__ char *command)
 {
     dprintf(ftp->polling.fds[index].fd, "200 Okay\r\n");
     return 0;
