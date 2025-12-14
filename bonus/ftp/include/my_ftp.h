@@ -77,6 +77,8 @@ typedef struct ftp_command_s {
     char garbage[DATA_BUFFER];
 } ftp_command_t;
 
+
+
 typedef struct client_s {
     /*IPV4 type*/
     struct sockaddr_in addr;
@@ -116,12 +118,6 @@ typedef struct polling_s {
     int nfds;
     struct pollfd *fds;
 }polling_t;
-
-typedef struct gui_client_s {
-    struct sockaddr_in addr;
-    socklen_t addrlen;
-    int fd;
-} gui_client_t;
 
 typedef struct ftp_s {
     server_t server;
