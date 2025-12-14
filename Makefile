@@ -56,13 +56,13 @@ SERV += my_server/free/destroy_ftp.c
 
 OB_S = $(SERV:.c=.o)
 
-CFLAGS = -Wall -Wextra -Iinclude -g -fanalyzer
+CFLAGS = -Wall -Wextra -Iinclude -g
 
 LDFLAG = -g
 
 all: $(NAME_S)
 $(NAME_S): $(OB_S)
-		gcc -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
+		clang -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
 
 clean:
 		rm -rf $(OB_S)
