@@ -25,7 +25,6 @@ int fill_ls_buffer(int fd, server_t *serv,
     strncpy(dest, "ls -l ", PATH_MAX);
     strncat(dest, serv->serv_wd, PATH_MAX);
     strncat(dest, client_wd, PATH_MAX);
-    printf("Cmd buffer: %s\n", dest);
     return EXIT_SUCCESS;
 }
 

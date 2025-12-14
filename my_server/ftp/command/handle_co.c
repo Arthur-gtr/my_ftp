@@ -64,6 +64,5 @@ int accept_co(client_t *client, int fd)
         return accept_in_co(client, fd);
     if (client->datatransfer_mode == PORT)
         return accept_out_co(client, fd);
-    printf("PASV NOT EXECUTE: %d\n", client->datatransfer_mode);
     return DATA_NOT_READY;
 }
