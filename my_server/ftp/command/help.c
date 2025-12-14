@@ -56,6 +56,7 @@ int help(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
+    dprintf(ftp->polling.fds[index].fd, "214 Help message.\r\n");
     if (nb_arg == 1)
         dshow_tab(help_tab, ftp->polling.fds[index].fd);
     if (nb_arg == 2){

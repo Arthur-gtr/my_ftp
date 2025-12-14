@@ -49,7 +49,7 @@ void change_cwd(ftp_t *ftp, int index, char *new_wc)
     if (IS_EMPTY(*ftp->client_tab.client[CLIENT_IDX(index)].wd))
         *ftp->client_tab.client[CLIENT_IDX(index)].wd = '/';
     dprintf(ftp->polling.fds[index].fd,
-        "250 Directory successfully changed.\r\n");
+        "250 Requested file action okay, completed.\r\n");
 }
 
 static

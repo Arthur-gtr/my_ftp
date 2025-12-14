@@ -18,7 +18,7 @@ int quit(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
-    dprintf(ftp->polling.fds[index].fd, "221\r\n");
+    dprintf(ftp->polling.fds[index].fd, "221 Service closing control connection.\r\n");
     close(ftp->polling.fds[index].fd);
     ftp->polling.fds[index].fd = -1;
     ftp->polling.fds[index].revents = 0;

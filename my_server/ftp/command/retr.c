@@ -43,12 +43,12 @@ int run_retr(char path[PATH_MAX], int control_socket, int socket_fd)
         exit(1);
     }
     if (p == 0){
-        dprintf(control_socket, "150 Opening data connection.\r\n");
         send_to_client(path, socket_fd);
-        dprintf(control_socket, "226 Closing data connection.\r\n");
         close(socket_fd);
         exit(0);
     }
+    dprintf(control_socket, "125 Data connection already open; transfer starting.\r\n");
+    dprintf(control_socket, "226 Closing data connection.\r\n");
     close(socket_fd);
     return EXIT_SUCCESS;
 }

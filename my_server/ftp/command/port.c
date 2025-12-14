@@ -151,6 +151,6 @@ int port(ftp_t *ftp, int index, char *command)
         close(ftp->client_tab.client[CLIENT_IDX(index)].pasv_fd);
     ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_ready = true;
     ftp->client_tab.client[CLIENT_IDX(index)].datatransfer_mode = PORT;
-    dprintf(ftp->polling.fds[index].fd, "200 PORT command successful.\r\n");
+    dprintf(ftp->polling.fds[index].fd, "200 Command okay.\r\n");
     return EXIT_SUCCESS;
 }

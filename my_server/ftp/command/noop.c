@@ -19,6 +19,6 @@ int noop(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, ARG_501);
         return EXIT_SUCCESS;
     }
-    dprintf(ftp->polling.fds[index].fd, "200 NOOP ok.\r\n");
+    dprintf(ftp->polling.fds[index].fd, "200 Command okay.\r\n");
     return EXIT_SUCCESS;
 }

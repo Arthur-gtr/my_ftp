@@ -11,7 +11,7 @@
 
 int type(ftp_t *ftp, int index, __attribute_maybe_unused__ char *command)
 {
-    dprintf(ftp->polling.fds[index].fd, "200 Okay\r\n");
+    dprintf(ftp->polling.fds[index].fd, "200 Command okay.\r\n");
     return 0;
 }
 

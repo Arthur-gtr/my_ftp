@@ -41,7 +41,7 @@ int password(ftp_t *ftp, int index, char *command)
         ftp->client_tab.client[CLIENT_IDX(index)].connection |= PASSW_C;
         ftp->client_tab.client[CLIENT_IDX(index)].connection |= CONNECTED;
         dprintf(ftp->polling.fds[index].fd,
-            "230 Password OK: Welcome aboard captain\r\n");
+            "230 User logged in, proceed.\r\n");
         return EXIT_SUCCESS;
     }
     dprintf(ftp->polling.fds[index].fd,

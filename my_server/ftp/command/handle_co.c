@@ -58,6 +58,7 @@ int accept_co(client_t *client, int fd)
         dprintf(fd, "425 Can't open data connection.\r\n");
         return EXIT_FAILURE;
     }
+    dprintf(fd, "150 File status okay; about to open data connection.\r\n");
     client->datatransfer_ready = false;
     if (client->datatransfer_mode == PASV)
         return accept_in_co(client, fd);

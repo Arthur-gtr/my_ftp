@@ -26,7 +26,6 @@ int skip_garbage(char *garbage, char *command, int init_pos)
     int skip_case = init_pos + 1;
 
     for (; char_in_str(command[skip_case], garbage); skip_case++);
-    printf("size; %d\n", skip_case);
     return skip_case;
 }
 
@@ -45,7 +44,7 @@ int user(ftp_t *ftp, int index, char *command)
     }
     if (strncmp(command, "Anonymous", 9) == 0){
         ftp->client_tab.client[CLIENT_IDX(index)].connection |= USER_C;
-        dprintf(ftp->polling.fds[index].fd, "331 Username Accepted\r\n");
+        dprintf(ftp->polling.fds[index].fd, "331 User name okay, need password.\r\n");
         return EXIT_SUCCESS;
     }
     printf("Failed USER\n");

@@ -58,13 +58,13 @@ void give_list_to_the_client(int fd, int control_fd,
         exit(1);
     }
     if (p == 0){
-        run_ls(fd, serv, client_wd);
-        dprintf(control_fd, "226 Closing data connection.\r\n");
+        run_ls(fd, serv, client_wd);  
         close(fd);
         close(control_fd);
         close(serv->server_fd);
         exit(0);
     }
+    dprintf(control_fd, "226 Closing data connection.\r\n");
     close(fd);
     return;
 }
@@ -121,7 +121,6 @@ int list(ftp_t *ftp, int index, char *command)
         get_n_arg(command, new_path, 2);
         refresh_path(path, new_path, &ftp->server);
     }
-    dprintf(ftp->polling.fds[index].fd, "150 Opening data connection.\r\n");
     give_list_to_the_client(ftp->client_tab.client[CLIENT_IDX(index)].socket_fd,
         ftp->polling.fds[index].fd, &ftp->server, path);
     return EXIT_SUCCESS;
