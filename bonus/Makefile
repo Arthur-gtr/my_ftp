@@ -1,73 +1,84 @@
 ##
 ## EPITECH PROJECT, 2024
 ## Makefile
-## File description:
-## .
 ##
+
+CC  = clang
+CXX = clang++
 
 NAME_S = myftp
 
-SERV = my_server/server.c
+SRC_C =
 
-#INIT
+SRC_CPP = my_server/server.cpp
 
-SERV += my_server/init/init_ftp.c
-SERV += my_server/init/init_server.c
-SERV += my_server/init/init_polling.c
-SERV += my_server/init/init_client.c
+# INIT
+SRC_C += my_server/init/init_ftp.c
+SRC_C += my_server/init/init_server.c
+SRC_C += my_server/init/init_polling.c
+SRC_C += my_server/init/init_client.c
 
-#UTILS
-SERV += my_server/utils/reterr.c
-SERV += my_server/utils/my_str_to_word_array.c
-SERV += my_server/utils/is_file.c
-SERV += my_server/utils/get_data.c
-SERV += my_server/utils/check_event.c
-SERV += my_server/utils/is_valid.c
-SERV += my_server/utils/fill_current_cmd.c
+# UTILS
+SRC_C += my_server/utils/reterr.c
+SRC_C += my_server/utils/my_str_to_word_array.c
+SRC_C += my_server/utils/is_file.c
+SRC_C += my_server/utils/get_data.c
+SRC_C += my_server/utils/check_event.c
+SRC_C += my_server/utils/is_valid.c
+SRC_C += my_server/utils/fill_current_cmd.c
 
-#FTP
-SERV += my_server/ftp/run_ftp.c
-SERV += my_server/ftp/add_user.c
+# FTP
+SRC_C += my_server/ftp/run_ftp.c
+SRC_C += my_server/ftp/add_user.c
 
-#COMMAND UTILS
-SERV += my_server/ftp/command/cmd_tab.c
-SERV += my_server/ftp/command/command_tab.c
-SERV += my_server/ftp/command/parsing_command.c
-SERV += my_server/ftp/command/handle_co.c
+# COMMAND UTILS
+SRC_C += my_server/ftp/command/cmd_tab.c
+SRC_C += my_server/ftp/command/command_tab.c
+SRC_C += my_server/ftp/command/parsing_command.c
+SRC_C += my_server/ftp/command/handle_co.c
 
-#COMMAND
-SERV += my_server/ftp/command/noop.c
-SERV += my_server/ftp/command/user.c
-SERV += my_server/ftp/command/pwd.c
-SERV += my_server/ftp/command/pasv.c
-SERV += my_server/ftp/command/list.c
-SERV += my_server/ftp/command/cwd.c
-SERV += my_server/ftp/command/cdup.c
-SERV += my_server/ftp/command/retr.c
-SERV += my_server/ftp/command/pass.c
-SERV += my_server/ftp/command/help.c
-SERV += my_server/ftp/command/dele.c
-SERV += my_server/ftp/command/stor.c
-SERV += my_server/ftp/command/port.c
-SERV += my_server/ftp/command/quit.c
+# COMMAND
+SRC_C += my_server/ftp/command/noop.c
+SRC_C += my_server/ftp/command/user.c
+SRC_C += my_server/ftp/command/pwd.c
+SRC_C += my_server/ftp/command/pasv.c
+SRC_C += my_server/ftp/command/list.c
+SRC_C += my_server/ftp/command/cwd.c
+SRC_C += my_server/ftp/command/cdup.c
+SRC_C += my_server/ftp/command/retr.c
+SRC_C += my_server/ftp/command/pass.c
+SRC_C += my_server/ftp/command/help.c
+SRC_C += my_server/ftp/command/dele.c
+SRC_C += my_server/ftp/command/stor.c
+SRC_C += my_server/ftp/command/port.c
+SRC_C += my_server/ftp/command/quit.c
 
-#FREE
-SERV += my_server/free/destroy_ftp.c
+# FREE
+SRC_C += my_server/free/destroy_ftp.c
 
-OB_S = $(SERV:.c=.o)
+OBJ_C   = $(SRC_C:.c=.o)
+OBJ_CPP = $(SRC_CPP:.cpp=.o)
+OBJ     = $(OBJ_C) $(OBJ_CPP)
 
-CFLAGS = -Wall -Wextra -Iinclude -g
+CFLAGS   = -Wall -Wextra -Iinclude -g
+CXXFLAGS = -Wall -Wextra -Iinclude -g
+LDFLAGS  = -g
 
-LDFLAG = -g
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 all: $(NAME_S)
-$(NAME_S): $(OB_S)
-		clang -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
+
+$(NAME_S): $(OBJ)
+	$(CXX) $(OBJ) -o $(NAME_S) $(LDFLAGS)
 
 clean:
-		rm -rf $(OB_S)
+	rm -rf $(OBJ)
 
 fclean: clean
-		rm -rf $(NAME_S)
+	rm -rf $(NAME_S)
 
 re: fclean all
