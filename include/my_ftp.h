@@ -121,7 +121,7 @@ typedef struct polling_s {
 
 typedef struct ftp_s {
     server_t server;
-    client_t *client;
+    //client_t *client;
     client_array_t client_tab;
     polling_t polling;
     int running;
