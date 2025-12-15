@@ -29,6 +29,22 @@ int skip_garbage(char *garbage, char *command, int init_pos)
     return skip_case;
 }
 
+int hanlde_name(ftp_t *ftp, int index, char *command)
+{
+    if (strncmp(command, "Anonymous", 9) == 0){
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= USER_C;
+        dprintf(ftp->polling.fds[index].fd, "331 User name okay, need password.\r\n");
+        return EXIT_SUCCESS;
+    }
+    if (strncmp(command, "GuiAdmin", 8) == 0){
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= USER_GUI;
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= USER_C;
+        dprintf(ftp->polling.fds[index].fd, "331 Gui ok, pls set PASS for data acess\r\n");
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
 int user(ftp_t *ftp, int index, char *command)
 {
     if (get_number_arg(command) > 2){
@@ -42,12 +58,8 @@ int user(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, "501 Username too long\r\n");
         return EXIT_SUCCESS;
     }
-    if (strncmp(command, "Anonymous", 9) == 0){
-        ftp->client_tab.client[CLIENT_IDX(index)].connection |= USER_C;
-        dprintf(ftp->polling.fds[index].fd, "331 User name okay, need password.\r\n");
+    if (hanlde_name(ftp, index, command) == EXIT_SUCCESS)
         return EXIT_SUCCESS;
-    }
-    printf("Failed USER\n");
     dprintf(ftp->polling.fds[index].fd, "530 Uknowing name...\r\n");
     return EXIT_SUCCESS;
 }

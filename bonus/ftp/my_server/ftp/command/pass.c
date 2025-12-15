@@ -26,6 +26,23 @@ int paswd_valid(char *paswd)
     return EXIT_SUCCESS;
 }
 
+static
+int handle_pass(ftp_t *ftp, int index, char *command)
+{
+    if (paswd_valid(command) == EXIT_SUCCESS){
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= PASSW_C;
+        ftp->client_tab.client[CLIENT_IDX(index)].connection |= CONNECTED;
+        if (ftp->client_tab.client[CLIENT_IDX(index)].connection & USER_GUI){
+            ftp->client_tab.client[CLIENT_IDX(index)].connection |= PASS_GUI;
+            printf("UI CLIENT SET\n");
+        }
+        dprintf(ftp->polling.fds[index].fd,
+            "230 User logged in, proceed.\r\n");
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
 int password(ftp_t *ftp, int index, char *command)
 {
     command += 4;
@@ -37,13 +54,8 @@ int password(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, "530 Username don't set...\r\n");
         return EXIT_SUCCESS;
     }
-    if (paswd_valid(command) == EXIT_SUCCESS){
-        ftp->client_tab.client[CLIENT_IDX(index)].connection |= PASSW_C;
-        ftp->client_tab.client[CLIENT_IDX(index)].connection |= CONNECTED;
-        dprintf(ftp->polling.fds[index].fd,
-            "230 User logged in, proceed.\r\n");
+    if (handle_pass(ftp, index, command) == EXIT_SUCCESS)
         return EXIT_SUCCESS;
-    }
     dprintf(ftp->polling.fds[index].fd,
         "501 Password error unvalid character...\r\n");
     return EXIT_SUCCESS;

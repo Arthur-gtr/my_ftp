@@ -116,10 +116,18 @@ int check_client_event(ftp_t *ftp, int i)
 {
     if (ftp->polling.fds[i].fd == -1)
         return EXIT_SUCCESS;
-    if (!(ftp->polling.fds[i].revents & POLLIN))
-        return EXIT_SUCCESS;
     if (check_force_deco(&ftp->polling.fds[i]) == EXIT_FAILURE)
         return EXIT_SUCCESS;
+    if (!(ftp->polling.fds[i].revents & POLLIN))
+        return EXIT_SUCCESS;
+    if (ftp->client_tab.client[CLIENT_IDX(i)].connection & PASS_GUI){
+        char trash_buffer[4096];
+        ssize_t ret = read(ftp->polling.fds[i].fd, trash_buffer, 4096);
+
+        dprintf(ftp->polling.fds[i].fd, "500 Data Send to true GUI app\r\n");
+        printf("Probably send something to the UI\n");
+        return EXIT_SUCCESS;
+    }
     if (get_data(ftp, i) == EXIT_FAILURE)
         return EXIT_SUCCESS;
     if (command_detected(&ftp->client_tab.client[CLIENT_IDX(i)].cmd_info) == true){
@@ -135,9 +143,10 @@ int check_event(ftp_t *ftp)
 {
     if (check_server_event(ftp) == EXIT_FAILURE)
         return EXIT_FAILURE;
-    for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++)
+    for (int i = CLIENT_ID_MIN; i < ftp->polling.nfds; i++){
         if (check_client_event(ftp, i) == MALLOC_FAILED)
             return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }
 

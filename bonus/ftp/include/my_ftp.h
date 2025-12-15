@@ -40,6 +40,8 @@
     #define USER_C (1 << 0)
     #define PASSW_C (1 << 1)
     #define CONNECTED (1 << 2)
+    #define USER_GUI (1 << 3)
+    #define PASS_GUI (1 << 4)
 
     #define DATA_BUFFER 2048
     #define CMD_BUFFER 1024
@@ -128,7 +130,6 @@ typedef struct gui_client_s {
 typedef struct ftp_s {
     server_t server;
     client_array_t client_tab;
-    gui_client_t gui_client;
     polling_t polling;
     int running;
 }ftp_t;
