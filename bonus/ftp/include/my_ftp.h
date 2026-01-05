@@ -172,6 +172,9 @@ int quit(ftp_t *ftp, int index, char *command);
 int port(ftp_t *ftp, int index, char *command);
 int quit(ftp_t *ftp, int index, char *command);
 
+/*GUI*/
+int send_to_gui(ftp_t *ftp, int index);
+
 /*FREE*/
 void destroy_ftp(ftp_t *ftp);
 void destroy_polling(polling_t *polling);

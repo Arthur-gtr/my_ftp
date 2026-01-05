@@ -120,11 +120,8 @@ int check_client_event(ftp_t *ftp, int i)
         return EXIT_SUCCESS;
     if (!(ftp->polling.fds[i].revents & POLLIN))
         return EXIT_SUCCESS;
-    if (ftp->client_tab.client[CLIENT_IDX(i)].connection & PASS_GUI){
-        char trash_buffer[4096];
-        ssize_t ret = read(ftp->polling.fds[i].fd, trash_buffer, 4096);
-
-        dprintf(ftp->polling.fds[i].fd, "500 Data Send to true GUI app\r\n");
+     if (ftp->client_tab.client[CLIENT_IDX(i)].connection & PASS_GUI){
+        send_to_gui(ftp, i);
         printf("Probably send something to the UI\n");
         return EXIT_SUCCESS;
     }

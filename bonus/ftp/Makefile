@@ -51,6 +51,9 @@ SERV += my_server/ftp/command/stor.c
 SERV += my_server/ftp/command/port.c
 SERV += my_server/ftp/command/quit.c
 
+#GUI
+SERV += my_server/gui/send_to_gui.c
+
 #FREE
 SERV += my_server/free/destroy_ftp.c
 
