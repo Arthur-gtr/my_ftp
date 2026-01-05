@@ -62,7 +62,7 @@ LDFLAG = -g
 
 all: $(NAME_S)
 $(NAME_S): $(OB_S)
-		clang -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
+		epiclang -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
 
 clean:
 		rm -rf $(OB_S)
