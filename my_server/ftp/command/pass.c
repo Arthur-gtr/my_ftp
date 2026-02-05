@@ -14,14 +14,10 @@
 int paswd_valid(char *paswd)
 {
     for (int i = 0; paswd[i] != 0; i++){
-        if (strncmp(&paswd[i], CRLF, CRLF_SZ) == 0){
-            printf("PASS quit on index %d\n", i);
+        if (strncmp(&paswd[i], CRLF, CRLF_SZ) == 0)
             return EXIT_SUCCESS;
-        }
-        if (is_valid(paswd[i])){
-            printf("Char non valide %c", paswd[i]);
+        if (is_valid(paswd[i]))
             return EXIT_FAILURE;
-        }
     }
     return EXIT_SUCCESS;
 }

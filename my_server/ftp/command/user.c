@@ -47,7 +47,6 @@ int user(ftp_t *ftp, int index, char *command)
         dprintf(ftp->polling.fds[index].fd, "331 User name okay, need password.\r\n");
         return EXIT_SUCCESS;
     }
-    printf("Failed USER\n");
     dprintf(ftp->polling.fds[index].fd, "530 Uknowing name...\r\n");
     return EXIT_SUCCESS;
 }

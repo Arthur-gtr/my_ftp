@@ -50,6 +50,6 @@ int get_data(ftp_t *ftp, int index)
     if (status + strlen(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer) > DATA_BUFFER)
         return treat_overflow(buffer,
             &ftp->client_tab.client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
-    strncat(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer, buffer, DATA_BUFFER - 1);
+    strcat(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer, buffer);
     return EXIT_SUCCESS;
 }

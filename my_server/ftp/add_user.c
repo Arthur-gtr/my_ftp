@@ -102,8 +102,6 @@ int add_user(ftp_t *ftp)
         &ftp->client_tab.client[ftp->client_tab.size - 1]) == EXIT_FAILURE)
         return EXIT_FAILURE;
     dprintf(ftp->polling.fds[ftp->client_tab.size].fd, "220 Service ready for new user.\r\n");
-    printf("User add to the queu, IP: %s\n",
-        inet_ntoa(ftp->client_tab.client[ftp->client_tab.size - 1].addr.sin_addr));
     init_ftp_command(&ftp->client_tab.client[CLIENT_IDX(ftp->client_tab.size)].cmd_info);
     return EXIT_SUCCESS;
 }

@@ -41,7 +41,6 @@ int check_force_deco(struct pollfd *poll_fd)
             poll_fd->fd = -1;
             poll_fd->revents = 0;
             poll_fd->events = 0;
-            printf("Deconect: force\n");
             return EXIT_FAILURE;
         }
     return EXIT_SUCCESS;
