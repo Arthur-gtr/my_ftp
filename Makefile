@@ -18,7 +18,6 @@ SERV += my_server/init/init_client.c
 
 #UTILS
 SERV += my_server/utils/reterr.c
-SERV += my_server/utils/my_str_to_word_array.c
 SERV += my_server/utils/is_file.c
 SERV += my_server/utils/get_data.c
 SERV += my_server/utils/check_event.c
@@ -56,13 +55,13 @@ SERV += my_server/free/destroy_ftp.c
 
 OB_S = $(SERV:.c=.o)
 
-CFLAGS = -Wall -Wextra -Iinclude -g
+CFLAGS = -Wall -Wextra -Iinclude
 
 LDFLAG = -g
 
 all: $(NAME_S)
 $(NAME_S): $(OB_S)
-		epiclang -g $(OB_S) $(CFLAGS) -o $(NAME_S)  $(LDFLAG)
+		epicilang -g $(OB_S) $(CFLAGS) -o $(NAME_S)
 
 clean:
 		rm -rf $(OB_S)
