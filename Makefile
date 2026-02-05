@@ -61,7 +61,7 @@ LDFLAG = -g
 
 all: $(NAME_S)
 $(NAME_S): $(OB_S)
-		epicilang -g $(OB_S) $(CFLAGS) -o $(NAME_S)
+		epiclang -g $(OB_S) $(CFLAGS) -o $(NAME_S)
 
 clean:
 		rm -rf $(OB_S)

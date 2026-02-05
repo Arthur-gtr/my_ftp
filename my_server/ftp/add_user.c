@@ -62,10 +62,8 @@ int check_pollfd_size(polling_t *polling)
         polling->alloc_pollfd *= 2;
         fds = realloc(polling->fds,
             sizeof(struct pollfd) * polling->alloc_pollfd);
-        if (fds == NULL) {
-            destroy_polling(polling);
+        if (fds == NULL)
             return EXIT_FAILURE;
-        }
         polling->fds = fds;
     }
     return EXIT_SUCCESS;
@@ -80,10 +78,8 @@ int check_client_size(client_array_t *client_tab)
     if (client_tab->size >= client_tab->alloc){
         client_tab->alloc *= 2;
         new_tab = realloc(client, sizeof(client_t) * client_tab->alloc);
-        if (new_tab == NULL) {
-            free(client);
+        if (new_tab == NULL) 
             return EXIT_FAILURE;
-        }
         client_tab->client = new_tab;
     }
     return EXIT_SUCCESS;

@@ -47,9 +47,9 @@ int get_data(ftp_t *ftp, int index)
         return EXIT_FAILURE;
     }
     buffer[status] = '\0';
-    if (status + strlen(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer) > 2048)
+    if (status + strlen(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer) > DATA_BUFFER)
         return treat_overflow(buffer,
             &ftp->client_tab.client[CLIENT_IDX(index)], ftp->polling.fds[index].fd);
-    strcat(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer, buffer);
+    strncat(ftp->client_tab.client[CLIENT_IDX(index)].cmd_info.buffer, buffer, DATA_BUFFER - 1);
     return EXIT_SUCCESS;
 }
